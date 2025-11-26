@@ -169,8 +169,18 @@ onMounted(async () => {
 
 const handleAddAddress = async () => {
   try {
-    await addressStore.createAddress(addressForm.value);
+    const response = await addressStore.createAddress(addressForm.value);
     await addressStore.fetchAddresses();
+    
+    // 如果是第一个地址，或者新添加的地址被设为默认，则自动选中
+    if (addressStore.addresses.length === 1 || addressForm.value.is_default) {
+      // 找到新添加的地址（通过ID匹配）
+      const newAddress = addressStore.addresses.find(addr => addr.id === response.data.id);
+      if (newAddress) {
+        selectedAddress.value = newAddress;
+      }
+    }
+    
     showAddressDialog.value = false;
     ElMessage.success('地址添加成功');
     // 重置表单
