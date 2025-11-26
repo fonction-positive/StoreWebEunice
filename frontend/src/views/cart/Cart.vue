@@ -24,7 +24,7 @@
             <div class="item-image">
               <img 
                 v-if="item.product_detail.main_image" 
-                :src="`http://localhost:8000/${item.product_detail.main_image.image}`" 
+                :src="`${item.product_detail.main_image.image}`" 
                 :alt="item.product_detail.name" 
                 class="product-image" 
               />
