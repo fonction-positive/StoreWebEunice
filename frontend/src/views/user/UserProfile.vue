@@ -108,7 +108,7 @@
                 <el-input v-model="passwordForm.confirm_password" type="password" show-password />
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" @click="handleChangePassword" :loading="loading">修改密码</el-button>
+                <el-button type="primary" @click="handleChangePassword" :loading="passwordLoading">修改密码</el-button>
               </el-form-item>
             </el-form>
 
@@ -157,7 +157,7 @@
                 />
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" @click="handleResetPassword" :loading="loading">重置密码</el-button>
+                <el-button type="primary" @click="handleResetPassword" :loading="resetPasswordLoading">重置密码</el-button>
               </el-form-item>
             </el-form>
           </div>
@@ -215,6 +215,8 @@ const addressStore = useAddressStore();
 
 const activeTab = ref('basic');
 const loading = ref(false);
+const passwordLoading = ref(false);
+const resetPasswordLoading = ref(false);
 
 // Basic Info
 const profileForm = reactive({
@@ -421,7 +423,7 @@ const handleChangePassword = async () => {
   
   await passwordFormRef.value.validate(async (valid) => {
     if (valid) {
-      loading.value = true;
+      passwordLoading.value = true;
       try {
         await userStore.changePassword({
           old_password: passwordForm.old_password,
@@ -434,7 +436,7 @@ const handleChangePassword = async () => {
       } catch (error) {
         ElMessage.error(error.response?.data?.old_password?.[0] || '密码修改失败');
       } finally {
-        loading.value = false;
+        passwordLoading.value = false;
       }
     }
   });
@@ -471,7 +473,7 @@ const handleResetPassword = async () => {
   
   await resetPasswordFormRef.value.validate(async (valid) => {
     if (valid) {
-      loading.value = true;
+      resetPasswordLoading.value = true;
       try {
         await api.post('auth/reset_password/', {
           code: resetPasswordForm.code,
@@ -490,7 +492,7 @@ const handleResetPassword = async () => {
           ElMessage.error('密码重置失败');
         }
       } finally {
-        loading.value = false;
+        resetPasswordLoading.value = false;
       }
     }
   });
