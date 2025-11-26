@@ -45,3 +45,7 @@ Django 原生管理后台: 刚刚为您配置好了。
 访问地址: http://localhost:8000/admin/
 账号: admin
 密码: admin123
+
+
+购物车无法返回
+支付页面缩略图无法正常显示
