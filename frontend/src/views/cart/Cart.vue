@@ -4,7 +4,7 @@
     <header class="header">
       <div class="header-content">
         <div class="title-row">
-          <el-button text @click="$router.back()" class="back-button">
+          <el-button text @click="$router.push('/')" class="back-button">
             <el-icon><ArrowLeft /></el-icon>
             返回
           </el-button>
