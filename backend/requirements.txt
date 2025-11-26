@@ -6,3 +6,4 @@ psycopg2-binary
 Pillow
 python-dotenv
 django-filter
+django-redis
