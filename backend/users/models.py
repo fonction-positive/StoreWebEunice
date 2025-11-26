@@ -2,8 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 def user_avatar_path(instance, filename):
-    # 文件将被上传到 MEDIA_ROOT/users/user_<id>/avatar/<filename>
-    return f'users/user_{instance.id}/avatar/{filename}'
+    # 文件将被上传到 MEDIA_ROOT/users/<id>/avatar/<filename>
+    return f'users/{instance.id}/avatar/{filename}'
 
 class User(AbstractUser):
     ROLE_CHOICES = (

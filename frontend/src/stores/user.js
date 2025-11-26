@@ -46,7 +46,11 @@ export const useUserStore = defineStore('user', {
         },
         async updateProfile(userData) {
             try {
-                const response = await api.patch('auth/me/', userData);
+                const response = await api.patch('auth/me/', userData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
                 this.user = response.data;
                 return response.data;
             } catch (error) {

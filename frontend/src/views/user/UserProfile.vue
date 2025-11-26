@@ -1,7 +1,13 @@
 <template>
   <div class="profile-page">
     <div class="profile-container">
-      <h1 class="page-title">个人中心</h1>
+      <div class="page-header">
+        <el-button text @click="$router.back()" class="back-button">
+          <el-icon><ArrowLeft /></el-icon>
+          返回
+        </el-button>
+        <h1 class="page-title">个人中心</h1>
+      </div>
       
       <el-tabs v-model="activeTab" class="profile-tabs" type="border-card">
         <!-- 基本信息 -->
@@ -153,7 +159,7 @@ import { ref, onMounted, reactive } from 'vue';
 import { useUserStore } from '../../stores/user';
 import { useAddressStore } from '../../stores/cart';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { Plus } from '@element-plus/icons-vue';
+import { Plus, ArrowLeft } from '@element-plus/icons-vue';
 
 const userStore = useUserStore();
 const addressStore = useAddressStore();
@@ -361,11 +367,24 @@ const handleChangePassword = async () => {
   padding: var(--spacing-xl);
 }
 
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.back-button {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-primary);
+}
+
 .page-title {
   font-size: 28px;
   font-weight: 700;
-  margin-bottom: var(--spacing-xl);
   color: var(--color-text-primary);
+  margin: 0;
 }
 
 .profile-tabs {
@@ -453,15 +472,16 @@ const handleChangePassword = async () => {
 }
 
 .address-card {
-  border: 1px solid var(--color-border);
+  border: 2px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--spacing-lg);
   position: relative;
   transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .address-card:hover {
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   border-color: var(--color-primary);
 }
 
