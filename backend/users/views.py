@@ -178,14 +178,15 @@ class EmailLoginView(APIView):
                 username = f"{base_username}{counter}"
                 counter += 1
             
-            # 生成随机密码
-            from django.contrib.auth.hashers import make_password
-            random_password = User.objects.make_random_password(length=12)
+            # 生成随机密码并创建用户
+            import secrets
+            import string
+            random_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
             
-            user = User.objects.create(
+            user = User.objects.create_user(
                 username=username,
                 email=email,
-                password=make_password(random_password)
+                password=random_password
             )
         
         # 生成JWT Token
