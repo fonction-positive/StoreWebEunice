@@ -26,7 +26,7 @@
         <el-form-item prop="username">
           <el-input 
             v-model="form.username" 
-            placeholder="请输入用户名"
+            placeholder="请输入用户名或邮箱"
             size="large"
             clearable
           >
@@ -94,7 +94,7 @@
               <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span>使用邮箱登录</span>
+            <span>使用邮箱验证登录</span>
           </a>
         </div>
       </el-form>
@@ -182,7 +182,7 @@
               <path d="M19 11H5C3.89543 11 3 11.8954 3 13V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V13C21 11.8954 20.1046 11 19 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span>使用密码登录</span>
+            <span>使用账号密码登录</span>
           </a>
         </div>
       </el-form>
@@ -234,8 +234,7 @@ let countdownTimer = null;
 // 表单验证规则
 const rules = {
   username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 20, message: '用户名长度应为3-20个字符', trigger: 'blur' }
+    { required: true, message: '请输入用户名或邮箱', trigger: 'blur' }
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },

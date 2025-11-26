@@ -17,18 +17,32 @@ User = get_user_model()
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
-        username = attrs.get('username')
+        username_or_email = attrs.get('username')  # 可以是用户名或邮箱
         password = attrs.get('password')
         
-        # 检查用户是否存在
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            raise ValidationError({'detail': '用户不存在，请先注册'})
+        # 尝试通过用户名或邮箱查找用户
+        user = None
+        
+        # 判断是否为邮箱格式
+        if re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', username_or_email):
+            # 邮箱登录
+            try:
+                user = User.objects.get(email=username_or_email)
+            except User.DoesNotExist:
+                raise ValidationError({'detail': '邮箱未注册，请先注册'})
+        else:
+            # 用户名登录
+            try:
+                user = User.objects.get(username=username_or_email)
+            except User.DoesNotExist:
+                raise ValidationError({'detail': '用户名不存在，请先注册'})
         
         # 检查密码是否正确
         if not user.check_password(password):
             raise ValidationError({'detail': '密码错误，请重试'})
+        
+        # 手动设置 user 对象，以便父类可以使用
+        attrs['username'] = user.username
         
         # 如果验证通过，调用父类方法获取token
         return super().validate(attrs)
@@ -292,36 +306,14 @@ class EmailLoginView(APIView):
         if stored_code != code:
             return Response({'detail': '验证码错误'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # 验证通过，删除验证码
-        cache.delete(cache_key)
-        
-        # 查找或创建用户
+        # 检查邮箱是否已注册
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            # 自动注册新用户
-            username = email.split('@')[0]
-            # 确保用户名唯一 - 如果重复则添加随机数字后缀
-            base_username = username
-            if User.objects.filter(username=username).exists():
-                import random
-                random_suffix = random.randint(1000, 9999)
-                username = f"{base_username}_{random_suffix}"
-                # 如果还是重复，继续尝试
-                while User.objects.filter(username=username).exists():
-                    random_suffix = random.randint(1000, 9999)
-                    username = f"{base_username}_{random_suffix}"
-            
-            # 生成随机密码并创建用户
-            import secrets
-            import string
-            random_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
-            
-            user = User.objects.create_user(
-                username=username,
-                email=email,
-                password=random_password
-            )
+            return Response({'detail': '该邮箱未注册，请先注册'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 验证通过，删除验证码
+        cache.delete(cache_key)
         
         # 生成JWT Token
         from rest_framework_simplejwt.tokens import RefreshToken
