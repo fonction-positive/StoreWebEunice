@@ -44,6 +44,25 @@ export const useUserStore = defineStore('user', {
                 console.error('Fetch user failed:', error);
             }
         },
+        async updateProfile(userData) {
+            try {
+                const response = await api.patch('auth/me/', userData);
+                this.user = response.data;
+                return response.data;
+            } catch (error) {
+                console.error('Update profile failed:', error);
+                throw error;
+            }
+        },
+        async changePassword(passwordData) {
+            try {
+                await api.put('auth/password_change/', passwordData);
+                return true;
+            } catch (error) {
+                console.error('Change password failed:', error);
+                throw error;
+            }
+        },
         logout() {
             this.user = null;
             this.accessToken = null;

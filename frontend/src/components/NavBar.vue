@@ -56,6 +56,10 @@
             </div>
             <template #dropdown>
               <el-dropdown-menu>
+                <el-dropdown-item @click="$router.push('/user/profile')">
+                  <el-icon><User /></el-icon>
+                  个人中心
+                </el-dropdown-item>
                 <el-dropdown-item @click="$router.push('/user/orders')">
                   <el-icon><List /></el-icon>
                   我的订单
