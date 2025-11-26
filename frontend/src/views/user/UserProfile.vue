@@ -33,12 +33,10 @@
 
               <el-form-item label="用户名">
                 <el-input v-model="profileForm.username" />
-                <div class="form-tip">用户名可用于登录，但需保持唯一</div>
               </el-form-item>
 
               <el-form-item label="邮箱">
                 <el-input v-model="profileForm.email" disabled />
-                <div class="form-tip">邮箱是您的账号标识，不可修改</div>
               </el-form-item>
 
               <el-form-item>
@@ -113,6 +111,55 @@
                 <el-button type="primary" @click="handleChangePassword" :loading="loading">修改密码</el-button>
               </el-form-item>
             </el-form>
+
+            <el-divider />
+
+            <h2 class="section-title">忘记密码</h2>
+            <p class="section-description">通过邮箱验证码重置您的密码</p>
+            <el-form 
+              ref="resetPasswordFormRef"
+              :model="resetPasswordForm" 
+              :rules="resetPasswordRules" 
+              label-position="top" 
+              class="password-form"
+            >
+              <el-form-item label="邮箱验证码" prop="code">
+                <div style="display: flex; gap: 10px;">
+                  <el-input 
+                    v-model="resetPasswordForm.code" 
+                    placeholder="请输入6位验证码"
+                    maxlength="6"
+                  />
+                  <el-button 
+                    @click="handleSendResetCode" 
+                    :disabled="resetCountdown > 0"
+                    style="width: 140px;"
+                  >
+                    {{ resetCountdown > 0 ? `${resetCountdown}秒后重试` : '发送验证码' }}
+                  </el-button>
+                </div>
+                <div class="form-tip">验证码将发送到：{{ userStore.user?.email }}</div>
+              </el-form-item>
+              <el-form-item label="新密码" prop="new_password">
+                <el-input 
+                  v-model="resetPasswordForm.new_password" 
+                  type="password" 
+                  show-password 
+                  placeholder="请输入新密码（至少6位）"
+                />
+              </el-form-item>
+              <el-form-item label="确认新密码" prop="confirm_new_password">
+                <el-input 
+                  v-model="resetPasswordForm.confirm_new_password" 
+                  type="password" 
+                  show-password 
+                  placeholder="请再次输入新密码"
+                />
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" @click="handleResetPassword" :loading="loading">重置密码</el-button>
+              </el-form-item>
+            </el-form>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -161,6 +208,7 @@ import { useUserStore } from '../../stores/user';
 import { useAddressStore } from '../../stores/cart';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Plus, ArrowLeft } from '@element-plus/icons-vue';
+import api from '../../api/axios';
 
 const userStore = useUserStore();
 const addressStore = useAddressStore();
@@ -189,6 +237,15 @@ const addressForm = reactive({
   is_default: false
 });
 
+// Reset Password
+const resetPasswordFormRef = ref(null);
+const resetPasswordForm = reactive({
+  code: '',
+  new_password: '',
+  confirm_new_password: ''
+});
+const resetCountdown = ref(0);
+
 // Password
 const passwordFormRef = ref(null);
 const passwordForm = reactive({
@@ -205,6 +262,14 @@ const validateConfirmPassword = (rule, value, callback) => {
   }
 };
 
+const validateConfirmResetPassword = (rule, value, callback) => {
+  if (value !== resetPasswordForm.new_password) {
+    callback(new Error('两次输入的密码不一致'));
+  } else {
+    callback();
+  }
+};
+
 const passwordRules = {
   old_password: [{ required: true, message: '请输入当前密码', trigger: 'blur' }],
   new_password: [
@@ -214,6 +279,21 @@ const passwordRules = {
   confirm_password: [
     { required: true, message: '请确认新密码', trigger: 'blur' },
     { validator: validateConfirmPassword, trigger: 'blur' }
+  ]
+};
+
+const resetPasswordRules = {
+  code: [
+    { required: true, message: '请输入验证码', trigger: 'blur' },
+    { len: 6, message: '验证码为6位数字', trigger: 'blur' }
+  ],
+  new_password: [
+    { required: true, message: '请输入新密码', trigger: 'blur' },
+    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+  ],
+  confirm_new_password: [
+    { required: true, message: '请确认新密码', trigger: 'blur' },
+    { validator: validateConfirmResetPassword, trigger: 'blur' }
   ]
 };
 
@@ -359,6 +439,62 @@ const handleChangePassword = async () => {
     }
   });
 };
+
+// Reset Password Actions
+const startResetCountdown = () => {
+  resetCountdown.value = 60;
+  const timer = setInterval(() => {
+    resetCountdown.value--;
+    if (resetCountdown.value <= 0) {
+      clearInterval(timer);
+    }
+  }, 1000);
+};
+
+const handleSendResetCode = async () => {
+  try {
+    await api.post('auth/send_reset_code/');
+    ElMessage.success('验证码已发送到您的邮箱');
+    startResetCountdown();
+  } catch (error) {
+    const detail = error.response?.data?.detail;
+    if (detail) {
+      ElMessage.error(detail);
+    } else {
+      ElMessage.error('验证码发送失败');
+    }
+  }
+};
+
+const handleResetPassword = async () => {
+  if (!resetPasswordFormRef.value) return;
+  
+  await resetPasswordFormRef.value.validate(async (valid) => {
+    if (valid) {
+      loading.value = true;
+      try {
+        await api.post('auth/reset_password/', {
+          code: resetPasswordForm.code,
+          new_password: resetPasswordForm.new_password
+        });
+        ElMessage.success('密码重置成功');
+        resetPasswordForm.code = '';
+        resetPasswordForm.new_password = '';
+        resetPasswordForm.confirm_new_password = '';
+        resetPasswordFormRef.value.resetFields();
+      } catch (error) {
+        const detail = error.response?.data?.detail;
+        if (detail) {
+          ElMessage.error(detail);
+        } else {
+          ElMessage.error('密码重置失败');
+        }
+      } finally {
+        loading.value = false;
+      }
+    }
+  });
+};
 </script>
 
 <style scoped>
@@ -413,11 +549,23 @@ const handleChangePassword = async () => {
   color: var(--color-text-primary);
 }
 
+.section-description {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-lg);
+}
+
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--spacing-xl);
+}
+
+.form-tip {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: 5px;
 }
 
 /* Avatar Upload */

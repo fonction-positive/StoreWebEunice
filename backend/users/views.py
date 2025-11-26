@@ -336,3 +336,95 @@ class EmailLoginView(APIView):
                 'email': user.email,
             }
         }, status=status.HTTP_200_OK)
+
+
+class SendResetPasswordCodeView(APIView):
+    """发送重置密码验证码"""
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        user = request.user
+        email = user.email
+        
+        # 检查发送频率限制（60秒）
+        last_sent_key = f'reset_password_sent:{email}'
+        last_sent = cache.get(last_sent_key)
+        if last_sent:
+            remaining = 60 - int(time.time() - last_sent)
+            if remaining > 0:
+                return Response(
+                    {'detail': f'请等待{remaining}秒后再试'}, 
+                    status=status.HTTP_429_TOO_MANY_REQUESTS
+                )
+        
+        # 生成6位随机验证码
+        code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        
+        # 存储验证码到Redis（5分钟过期）
+        cache_key = f'reset_password_code:{email}'
+        cache.set(cache_key, code, timeout=300)
+        
+        # 记录发送时间
+        cache.set(last_sent_key, int(time.time()), timeout=60)
+        
+        # 发送邮件
+        try:
+            subject = 'StoreWeb 重置密码验证码'
+            message = f'''您好 {user.username}，
+
+您正在进行重置密码操作，验证码是：{code}
+
+验证码有效期为5分钟，请尽快使用。
+
+如果这不是您本人的操作，请立即修改密码并联系客服。
+
+---
+StoreWeb 团队'''
+            
+            send_mail(
+                subject,
+                message,
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False,
+            )
+            
+            return Response({'detail': '验证码已发送到您的邮箱'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'detail': f'邮件发送失败: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ResetPasswordView(APIView):
+    """通过邮箱验证码重置密码"""
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        user = request.user
+        email = user.email
+        code = request.data.get('code')
+        new_password = request.data.get('new_password')
+        
+        if not code or not new_password:
+            return Response({'detail': '验证码和新密码不能为空'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if len(new_password) < 6:
+            return Response({'detail': '密码长度不能少于6位'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 验证验证码
+        cache_key = f'reset_password_code:{email}'
+        stored_code = cache.get(cache_key)
+        
+        if not stored_code:
+            return Response({'detail': '验证码已过期或不存在'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if stored_code != code:
+            return Response({'detail': '验证码错误'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 验证通过，删除验证码
+        cache.delete(cache_key)
+        
+        # 重置密码
+        user.set_password(new_password)
+        user.save()
+        
+        return Response({'detail': '密码重置成功'}, status=status.HTTP_200_OK)
