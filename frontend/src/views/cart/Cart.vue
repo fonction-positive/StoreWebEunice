@@ -134,7 +134,10 @@ const selectedCount = computed(() => {
 });
 
 const selectedTotal = computed(() => {
-  return cartStore.items.filter(item => item.selected).reduce((sum, item) => sum + parseFloat(item.subtotal), 0).toFixed(2);
+  return cartStore.items
+    .filter(item => item.selected)
+    .reduce((sum, item) => sum + item.quantity * parseFloat(item.product_detail.price), 0)
+    .toFixed(2);
 });
 
 const updateSelection = () => {
