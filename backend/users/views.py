@@ -219,7 +219,7 @@ class ChangePasswordView(generics.UpdateAPIView):
 
 
 class SendEmailCodeView(APIView):
-    """发送邮箱验证码"""
+    """发送邮箱验证码（用于登录）"""
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
@@ -228,6 +228,10 @@ class SendEmailCodeView(APIView):
         # 验证邮箱格式
         if not email or not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
             return Response({'detail': '邮箱格式不正确'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 检查邮箱是否已注册（邮箱验证码登录专用）
+        if not User.objects.filter(email=email).exists():
+            return Response({'detail': '该邮箱未注册，请先注册'}, status=status.HTTP_400_BAD_REQUEST)
         
         # 检查发送频率限制（60秒）
         last_sent_key = f'email_sent:{email}'
