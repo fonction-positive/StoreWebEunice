@@ -7,8 +7,8 @@
         <span class="logo-text">StoreWeb</span>
       </div>
 
-      <!-- 搜索框 -->
-      <div class="search-container">
+      <!-- 搜索框 - 桌面端 -->
+      <div class="search-container desktop-search">
         <el-input 
           v-model="searchQuery" 
           placeholder="搜索商品..." 
@@ -25,6 +25,11 @@
 
       <!-- 右侧操作区 -->
       <div class="navbar-actions">
+        <!-- 搜索按钮 - 移动端 -->
+        <div class="icon-button mobile-search-btn" @click="showMobileSearch = true">
+          <el-icon :size="22"><Search /></el-icon>
+        </div>
+
         <!-- 购物车 -->
         <el-badge :value="cartStore.totalCount" :hidden="cartStore.totalCount === 0" class="cart-badge">
           <div class="icon-button" @click="$router.push('/cart')">
@@ -89,6 +94,29 @@
         </div>
       </div>
     </div>
+
+    <!-- 移动端搜索对话框 -->
+    <el-dialog 
+      v-model="showMobileSearch" 
+      title="搜索商品"
+      :width="'90%'"
+      :show-close="true"
+      class="mobile-search-dialog"
+    >
+      <el-input 
+        v-model="searchQuery" 
+        placeholder="搜索商品..." 
+        @input="handleSearch" 
+        clearable
+        size="large"
+        autofocus
+        class="mobile-search-input"
+      >
+        <template #prefix>
+          <el-icon><Search /></el-icon>
+        </template>
+      </el-input>
+    </el-dialog>
   </nav>
 </template>
 
@@ -117,6 +145,8 @@ const cartStore = useCartStore();
 const themeStore = useThemeStore();
 const router = useRouter();
 const searchQuery = ref('');
+const showMobileSearch = ref(false);
+
 
 const handleSearch = () => {
   if (window.searchTimeout) clearTimeout(window.searchTimeout);
@@ -208,6 +238,10 @@ const handleLogout = () => {
   z-index: 1;
 }
 
+.mobile-search-btn {
+  display: none !important;
+}
+
 .search-input {
   --el-input-border-radius: var(--radius-base);
   --el-input-bg-color: var(--muted-color);
@@ -243,6 +277,7 @@ const handleLogout = () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
 .icon-button:hover {
@@ -278,6 +313,24 @@ const handleLogout = () => {
   margin-left: 0;
 }
 
+/* 移动端搜索对话框 */
+.mobile-search-dialog :deep(.el-dialog) {
+  border-radius: var(--radius-lg);
+}
+
+.mobile-search-dialog :deep(.el-dialog__header) {
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.mobile-search-dialog :deep(.el-dialog__body) {
+  padding: var(--spacing-lg);
+}
+
+.mobile-search-input {
+  --el-input-border-radius: var(--radius-base);
+}
+
 @media (max-width: 768px) {
   .navbar {
     width: calc(100% - var(--spacing-md) * 2);
@@ -286,19 +339,27 @@ const handleLogout = () => {
   }
 
   .navbar-content {
-    flex-wrap: wrap;
     padding: var(--spacing-sm) var(--spacing-md);
     gap: var(--spacing-md);
   }
 
-  .search-container {
-    position: static;
-    transform: none;
-    left: auto;
-    order: 3;
-    width: 100%;
-    max-width: 100%;
-    margin-top: var(--spacing-sm);
+  /* 隐藏桌面端搜索框 */
+  .desktop-search {
+    display: none;
+  }
+
+  /* 显示移动端搜索按钮 */
+  .mobile-search-btn {
+    display: flex !important;
+  }
+
+  /* 隐藏用户名文字 */
+  .user-name {
+    display: none;
+  }
+
+  .navbar-actions {
+    gap: var(--spacing-md);
   }
 }
 </style>

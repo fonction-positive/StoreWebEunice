@@ -3,7 +3,7 @@
     <!-- Header -->
     <header class="admin-header">
       <div class="header-content">
-        <div>
+        <div class="title-row">
           <el-button text @click="$router.back()" class="back-button">
             <el-icon><ArrowLeft /></el-icon>
             返回
@@ -165,11 +165,16 @@ const handleSave = async () => {
   align-items: center;
 }
 
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
 .back-button {
   font-size: 16px;
   font-weight: 500;
   color: var(--color-primary);
-  margin-bottom: var(--spacing-sm);
 }
 
 .page-title {
@@ -177,6 +182,7 @@ const handleSave = async () => {
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--color-text-primary);
+  margin: 0;
 }
 
 .form-container {
