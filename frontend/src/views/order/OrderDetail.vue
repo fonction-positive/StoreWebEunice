@@ -5,9 +5,9 @@
       <div class="header-content">
         <el-button text @click="$router.back()" class="back-button">
           <el-icon><ArrowLeft /></el-icon>
-          返回
+          {{ $t('order.back') }}
         </el-button>
-        <h1 class="page-title">订单详情</h1>
+        <h1 class="page-title">{{ $t('order.detail') }}</h1>
       </div>
     </header>
 
@@ -20,26 +20,26 @@
           :title="orderStore.currentOrder.status_display"
         >
           <template #sub-title>
-            <p>订单号：{{ orderStore.currentOrder.order_no }}</p>
-            <p>下单时间：{{ formatDate(orderStore.currentOrder.created_at) }}</p>
+            <p>{{ $t('order.orderNumber') }}：{{ orderStore.currentOrder.order_no }}</p>
+            <p>{{ $t('order.orderDate') }}：{{ formatDate(orderStore.currentOrder.created_at) }}</p>
           </template>
         </el-result>
       </div>
 
       <!-- Address Section -->
       <div class="section">
-        <h2 class="section-title">收货信息</h2>
+        <h2 class="section-title">{{ $t('order.shippingInfo') }}</h2>
         <div class="address-info">
           <div class="info-row">
-            <span class="label">收货人：</span>
+            <span class="label">{{ $t('order.recipient') }}：</span>
             <span>{{ orderStore.currentOrder.shipping_name }}</span>
           </div>
           <div class="info-row">
-            <span class="label">联系电话：</span>
+            <span class="label">{{ $t('order.phone') }}：</span>
             <span>{{ orderStore.currentOrder.shipping_phone }}</span>
           </div>
           <div class="info-row">
-            <span class="label">收货地址：</span>
+            <span class="label">{{ $t('order.address') }}：</span>
             <span>
               {{ orderStore.currentOrder.shipping_province }}
               {{ orderStore.currentOrder.shipping_city }}
@@ -48,7 +48,7 @@
             </span>
           </div>
           <div v-if="orderStore.currentOrder.tracking_no" class="info-row">
-            <span class="label">物流单号：</span>
+            <span class="label">{{ $t('order.trackingNo') }}：</span>
             <span>{{ orderStore.currentOrder.tracking_no }}</span>
           </div>
         </div>
@@ -56,7 +56,7 @@
 
       <!-- Items Section -->
       <div class="section">
-        <h2 class="section-title">商品清单</h2>
+        <h2 class="section-title">{{ $t('order.itemsList') }}</h2>
         <div class="items-list">
           <div v-for="item in orderStore.currentOrder.items" :key="item.id" class="item-row">
             <div class="item-info">
@@ -71,11 +71,11 @@
       <!-- Summary Section -->
       <div class="section summary-section">
         <div class="summary-row">
-          <span>商品总价</span>
+          <span>{{ $t('order.itemsTotal') }}</span>
           <span>¥{{ orderStore.currentOrder.total_amount }}</span>
         </div>
         <div class="summary-row total">
-          <span>实付金额</span>
+          <span>{{ $t('order.actualAmount') }}</span>
           <span class="total-price">¥{{ orderStore.currentOrder.total_amount }}</span>
         </div>
       </div>
@@ -88,14 +88,14 @@
           size="large"
           @click="handlePay"
         >
-          去支付
+          {{ $t('order.pay') }}
         </el-button>
         <el-button 
           v-if="orderStore.currentOrder.status === 'pending' || orderStore.currentOrder.status === 'paid'"
           size="large"
           @click="handleCancel"
         >
-          取消订单
+          {{ $t('order.cancel') }}
         </el-button>
         <el-button 
           v-if="orderStore.currentOrder.status === 'shipped'"
@@ -103,7 +103,7 @@
           size="large"
           @click="handleConfirm"
         >
-          确认收货
+          {{ $t('order.confirm') }}
         </el-button>
       </div>
     </div>
@@ -116,7 +116,9 @@ import { useOrderStore } from '../../stores/cart';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { ArrowLeft } from '@element-plus/icons-vue';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const orderStore = useOrderStore();
 const route = useRoute();
 const router = useRouter();
@@ -144,25 +146,25 @@ const getStatusIcon = (status) => {
 const handlePay = async () => {
   try {
     await orderStore.payOrder(route.params.id);
-    ElMessage.success('支付成功');
+    ElMessage.success(t('order.paySuccess'));
     orderStore.fetchOrder(route.params.id);
   } catch (error) {
-    ElMessage.error('支付失败');
+    ElMessage.error(t('order.payError'));
   }
 };
 
 const handleCancel = () => {
-  ElMessageBox.confirm('确定要取消这个订单吗？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  ElMessageBox.confirm(t('order.confirmCancel'), t('order.confirmTitle'), {
+    confirmButtonText: t('order.confirmButton'),
+    cancelButtonText: t('order.cancelButton'),
     type: 'warning',
   }).then(async () => {
     try {
       await orderStore.cancelOrder(route.params.id);
-      ElMessage.success('订单已取消');
+      ElMessage.success(t('order.cancelSuccess'));
       orderStore.fetchOrder(route.params.id);
     } catch (error) {
-      ElMessage.error('取消失败');
+      ElMessage.error(t('order.cancelError'));
     }
   }).catch(() => {});
 };
@@ -170,10 +172,10 @@ const handleCancel = () => {
 const handleConfirm = async () => {
   try {
     await orderStore.confirmOrder(route.params.id);
-    ElMessage.success('确认收货成功');
+    ElMessage.success(t('order.confirmSuccess'));
     orderStore.fetchOrder(route.params.id);
   } catch (error) {
-    ElMessage.error('操作失败');
+    ElMessage.error(t('order.confirmError'));
   }
 };
 </script>

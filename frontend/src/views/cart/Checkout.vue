@@ -5,9 +5,9 @@
       <div class="header-content">
         <el-button text @click="$router.back()" class="back-button">
           <el-icon><ArrowLeft /></el-icon>
-          返回
+          {{ $t('checkout.back') }}
         </el-button>
-        <h1 class="page-title">确认订单</h1>
+        <h1 class="page-title">{{ $t('checkout.title') }}</h1>
       </div>
     </header>
 
@@ -15,7 +15,7 @@
     <div class="checkout-container" v-loading="loading">
       <!-- Address Section -->
       <div class="section address-section">
-        <h2 class="section-title">收货地址</h2>
+        <h2 class="section-title">{{ $t('checkout.addressTitle') }}</h2>
         <div v-if="addressStore.addresses.length > 0" class="address-list">
           <div 
             v-for="addr in addressStore.addresses" 
@@ -27,7 +27,7 @@
               <div class="address-header">
                 <span class="recipient">{{ addr.recipient_name }}</span>
                 <span class="phone">{{ addr.phone }}</span>
-                <el-tag v-if="addr.is_default" type="success" size="small">默认</el-tag>
+                <el-tag v-if="addr.is_default" type="success" size="small">{{ $t('checkout.default') }}</el-tag>
               </div>
               <p class="address-detail">
                 {{ addr.province }} {{ addr.city }} {{ addr.district }} {{ addr.address }}
@@ -38,14 +38,14 @@
             </el-icon>
           </div>
         </div>
-        <el-empty v-else description="暂无收货地址">
-          <el-button type="primary" @click="showAddressDialog = true">添加地址</el-button>
+        <el-empty v-else :description="$t('checkout.noAddress')">
+          <el-button type="primary" @click="showAddressDialog = true">{{ $t('checkout.addAddress') }}</el-button>
         </el-empty>
       </div>
 
       <!-- Items Section -->
       <div class="section items-section">
-        <h2 class="section-title">商品清单</h2>
+        <h2 class="section-title">{{ $t('checkout.itemsTitle') }}</h2>
         <div class="items-list">
           <div v-for="item in checkoutItems" :key="item.id" class="item-row">
             <img 
@@ -65,11 +65,11 @@
       <!-- Summary Section -->
       <div class="section summary-section">
         <div class="summary-row">
-          <span>商品总价</span>
+          <span>{{ $t('checkout.itemsTotal') }}</span>
           <span>¥{{ totalAmount }}</span>
         </div>
         <div class="summary-row total">
-          <span>应付总额</span>
+          <span>{{ $t('checkout.totalAmount') }}</span>
           <span class="total-price">¥{{ totalAmount }}</span>
         </div>
       </div>
@@ -83,39 +83,39 @@
           :disabled="!selectedAddress"
           class="submit-btn"
         >
-          提交订单
+          {{ $t('checkout.submitOrder') }}
         </el-button>
       </div>
     </div>
 
     <!-- Add Address Dialog -->
-    <el-dialog v-model="showAddressDialog" title="添加收货地址" width="500px">
+    <el-dialog v-model="showAddressDialog" :title="$t('checkout.addAddressTitle')" width="500px">
       <el-form :model="addressForm" label-position="top">
-        <el-form-item label="收货人">
+        <el-form-item :label="$t('checkout.recipient')">
           <el-input v-model="addressForm.recipient_name" />
         </el-form-item>
-        <el-form-item label="手机号">
+        <el-form-item :label="$t('checkout.phone')">
           <el-input v-model="addressForm.phone" />
         </el-form-item>
-        <el-form-item label="省份">
+        <el-form-item :label="$t('checkout.province')">
           <el-input v-model="addressForm.province" />
         </el-form-item>
-        <el-form-item label="城市">
+        <el-form-item :label="$t('checkout.city')">
           <el-input v-model="addressForm.city" />
         </el-form-item>
-        <el-form-item label="区县">
+        <el-form-item :label="$t('checkout.district')">
           <el-input v-model="addressForm.district" />
         </el-form-item>
-        <el-form-item label="详细地址">
+        <el-form-item :label="$t('checkout.address')">
           <el-input v-model="addressForm.address" type="textarea" />
         </el-form-item>
         <el-form-item>
-          <el-checkbox v-model="addressForm.is_default">设为默认地址</el-checkbox>
+          <el-checkbox v-model="addressForm.is_default">{{ $t('checkout.setDefault') }}</el-checkbox>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="showAddressDialog = false">取消</el-button>
-        <el-button type="primary" @click="handleAddAddress">保存</el-button>
+        <el-button @click="showAddressDialog = false">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="handleAddAddress">{{ $t('checkout.save') }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -127,7 +127,9 @@ import { useAddressStore, useOrderStore } from '../../stores/cart';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { ArrowLeft, CircleCheck } from '@element-plus/icons-vue';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const addressStore = useAddressStore();
 const orderStore = useOrderStore();
 const router = useRouter();
@@ -156,7 +158,7 @@ onMounted(async () => {
   if (items) {
     checkoutItems.value = JSON.parse(items);
   } else {
-    ElMessage.warning('没有要结算的商品');
+    ElMessage.warning(t('checkout.noItems'));
     router.push('/cart');
     return;
   }
@@ -182,7 +184,7 @@ const handleAddAddress = async () => {
     }
     
     showAddressDialog.value = false;
-    ElMessage.success('地址添加成功');
+    ElMessage.success(t('checkout.addressSuccess'));
     // 重置表单
     addressForm.value = {
       recipient_name: '',
@@ -194,13 +196,13 @@ const handleAddAddress = async () => {
       is_default: false
     };
   } catch (error) {
-    ElMessage.error('添加失败');
+    ElMessage.error(t('checkout.addressError'));
   }
 };
 
 const handleSubmit = async () => {
   if (!selectedAddress.value) {
-    ElMessage.warning('请选择收货地址');
+    ElMessage.warning(t('checkout.selectAddress'));
     return;
   }
 
@@ -219,11 +221,11 @@ const handleSubmit = async () => {
     // 模拟支付
     await orderStore.payOrder(orderId);
 
-    ElMessage.success('订单提交成功！');
+    ElMessage.success(t('checkout.orderSuccess'));
     sessionStorage.removeItem('checkoutItems');
     router.push(`/user/orders/${orderId}`);
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '订单提交失败');
+    ElMessage.error(error.response?.data?.error || t('checkout.orderError'));
   } finally {
     loading.value = false;
   }

@@ -4,18 +4,18 @@
       <div class="page-header">
         <el-button text @click="$router.back()" class="back-button">
           <el-icon><ArrowLeft /></el-icon>
-          返回
+          {{ $t('profile.back') }}
         </el-button>
-        <h1 class="page-title">个人中心</h1>
+        <h1 class="page-title">{{ $t('profile.title') }}</h1>
       </div>
       
       <el-tabs v-model="activeTab" class="profile-tabs" type="border-card">
         <!-- 基本信息 -->
-        <el-tab-pane label="基本信息" name="basic">
+        <el-tab-pane :label="$t('profile.basicInfo')" name="basic">
           <div class="tab-content">
-            <h2 class="section-title">基本信息</h2>
+            <h2 class="section-title">{{ $t('profile.basicInfo') }}</h2>
             <el-form :model="profileForm" label-position="top" class="profile-form">
-              <el-form-item label="头像">
+              <el-form-item :label="$t('profile.avatar')">
                 <div class="avatar-uploader">
                   <el-upload
                     class="avatar-upload"
@@ -27,31 +27,31 @@
                     <img v-if="avatarUrl" :src="avatarUrl" class="avatar" />
                     <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
                   </el-upload>
-                  <div class="avatar-tip">点击图片更换头像</div>
+                  <div class="avatar-tip">{{ $t('profile.avatarTip') }}</div>
                 </div>
               </el-form-item>
 
-              <el-form-item label="用户名">
+              <el-form-item :label="$t('profile.username')">
                 <el-input v-model="profileForm.username" />
               </el-form-item>
 
-              <el-form-item label="邮箱">
+              <el-form-item :label="$t('profile.email')">
                 <el-input v-model="profileForm.email" disabled />
               </el-form-item>
 
               <el-form-item>
-                <el-button type="primary" @click="handleUpdateProfile" :loading="loading">保存修改</el-button>
+                <el-button type="primary" @click="handleUpdateProfile" :loading="loading">{{ $t('profile.saveChanges') }}</el-button>
               </el-form-item>
             </el-form>
           </div>
         </el-tab-pane>
 
         <!-- 收货地址 -->
-        <el-tab-pane label="收货地址" name="address">
+        <el-tab-pane :label="$t('profile.address')" name="address">
           <div class="tab-content">
             <div class="section-header">
-              <h2 class="section-title">收货地址管理</h2>
-              <el-button type="primary" @click="openAddressDialog()">新增地址</el-button>
+              <h2 class="section-title">{{ $t('profile.addressManage') }}</h2>
+              <el-button type="primary" @click="openAddressDialog()">{{ $t('profile.addAddress') }}</el-button>
             </div>
 
             <div v-if="addressStore.addresses.length > 0" class="address-grid">
@@ -63,34 +63,34 @@
                 <div class="address-header">
                   <span class="recipient">{{ addr.recipient_name }}</span>
                   <span class="phone">{{ addr.phone }}</span>
-                  <el-tag v-if="addr.is_default" type="success" size="small">默认</el-tag>
+                  <el-tag v-if="addr.is_default" type="success" size="small">{{ $t('profile.default') }}</el-tag>
                 </div>
                 <p class="address-detail">
                   {{ addr.province }} {{ addr.city }} {{ addr.district }}<br>
                   {{ addr.address }}
                 </p>
                 <div class="address-actions">
-                  <el-button link type="primary" @click="openAddressDialog(addr)">编辑</el-button>
-                  <el-button link type="danger" @click="handleDeleteAddress(addr.id)">删除</el-button>
+                  <el-button link type="primary" @click="openAddressDialog(addr)">{{ $t('profile.edit') }}</el-button>
+                  <el-button link type="danger" @click="handleDeleteAddress(addr.id)">{{ $t('profile.delete') }}</el-button>
                   <el-button 
                     v-if="!addr.is_default" 
                     link 
                     type="success" 
                     @click="handleSetDefault(addr)"
                   >
-                    设为默认
+                    {{ $t('profile.setAsDefault') }}
                   </el-button>
                 </div>
               </div>
             </div>
-            <el-empty v-else description="暂无收货地址" />
+            <el-empty v-else :description="$t('profile.noAddress')" />
           </div>
         </el-tab-pane>
 
         <!-- 安全设置 -->
-        <el-tab-pane label="安全设置" name="security">
+        <el-tab-pane :label="$t('profile.security')" name="security">
           <div class="tab-content">
-            <h2 class="section-title">修改密码</h2>
+            <h2 class="section-title">{{ $t('profile.changePassword') }}</h2>
             <el-form 
               ref="passwordFormRef"
               :model="passwordForm" 
@@ -98,24 +98,24 @@
               label-position="top" 
               class="password-form"
             >
-              <el-form-item label="当前密码" prop="old_password">
+              <el-form-item :label="$t('profile.oldPassword')" prop="old_password">
                 <el-input v-model="passwordForm.old_password" type="password" show-password />
               </el-form-item>
-              <el-form-item label="新密码" prop="new_password">
+              <el-form-item :label="$t('profile.newPassword')" prop="new_password">
                 <el-input v-model="passwordForm.new_password" type="password" show-password />
               </el-form-item>
-              <el-form-item label="确认新密码" prop="confirm_password">
+              <el-form-item :label="$t('profile.confirmPassword')" prop="confirm_password">
                 <el-input v-model="passwordForm.confirm_password" type="password" show-password />
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" @click="handleChangePassword" :loading="passwordLoading">修改密码</el-button>
+                <el-button type="primary" @click="handleChangePassword" :loading="passwordLoading">{{ $t('profile.changePassword') }}</el-button>
               </el-form-item>
             </el-form>
 
             <el-divider />
 
-            <h2 class="section-title">忘记密码</h2>
-            <p class="section-description">通过邮箱验证码重置您的密码</p>
+            <h2 class="section-title">{{ $t('profile.forgotPassword') }}</h2>
+            <p class="section-description">{{ $t('profile.forgotPasswordDesc') }}</p>
             <el-form 
               ref="resetPasswordFormRef"
               :model="resetPasswordForm" 
@@ -123,11 +123,11 @@
               label-position="top" 
               class="password-form"
             >
-              <el-form-item label="邮箱验证码" prop="code">
+              <el-form-item :label="$t('profile.emailCode')" prop="code">
                 <div style="display: flex; gap: 10px;">
                   <el-input 
                     v-model="resetPasswordForm.code" 
-                    placeholder="请输入6位验证码"
+                    :placeholder="$t('profile.codePlaceholder')"
                     maxlength="6"
                   />
                   <el-button 
@@ -135,29 +135,29 @@
                     :disabled="resetCountdown > 0"
                     style="width: 140px;"
                   >
-                    {{ resetCountdown > 0 ? `${resetCountdown}秒后重试` : '发送验证码' }}
+                    {{ resetCountdown > 0 ? $t('profile.retryAfter', { count: resetCountdown }) : $t('profile.sendCode') }}
                   </el-button>
                 </div>
-                <div class="form-tip">验证码将发送到：{{ userStore.user?.email }}</div>
+                <div class="form-tip">{{ $t('profile.codeWillSendTo') }}{{ userStore.user?.email }}</div>
               </el-form-item>
-              <el-form-item label="新密码" prop="new_password">
+              <el-form-item :label="$t('profile.newPassword')" prop="new_password">
                 <el-input 
                   v-model="resetPasswordForm.new_password" 
                   type="password" 
                   show-password 
-                  placeholder="请输入新密码（至少6位）"
+                  :placeholder="$t('profile.newPasswordPlaceholder')"
                 />
               </el-form-item>
-              <el-form-item label="确认新密码" prop="confirm_new_password">
+              <el-form-item :label="$t('profile.confirmPassword')" prop="confirm_new_password">
                 <el-input 
                   v-model="resetPasswordForm.confirm_new_password" 
                   type="password" 
                   show-password 
-                  placeholder="请再次输入新密码"
+                  :placeholder="$t('profile.confirmNewPasswordPlaceholder')"
                 />
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" @click="handleResetPassword" :loading="resetPasswordLoading">重置密码</el-button>
+                <el-button type="primary" @click="handleResetPassword" :loading="resetPasswordLoading">{{ $t('profile.resetPassword') }}</el-button>
               </el-form-item>
             </el-form>
           </div>
@@ -168,48 +168,50 @@
     <!-- Address Dialog -->
     <el-dialog 
       v-model="showAddressDialog" 
-      :title="editingAddress ? '编辑地址' : '新增地址'" 
+      :title="editingAddress ? $t('profile.editAddress') : $t('profile.addAddress')" 
       width="500px"
     >
       <el-form :model="addressForm" label-position="top">
-        <el-form-item label="收货人">
+        <el-form-item :label="$t('profile.recipient')">
           <el-input v-model="addressForm.recipient_name" />
         </el-form-item>
-        <el-form-item label="手机号">
+        <el-form-item :label="$t('profile.phone')">
           <el-input v-model="addressForm.phone" />
         </el-form-item>
-        <el-form-item label="省份">
+        <el-form-item :label="$t('profile.province')">
           <el-input v-model="addressForm.province" />
         </el-form-item>
-        <el-form-item label="城市">
+        <el-form-item :label="$t('profile.city')">
           <el-input v-model="addressForm.city" />
         </el-form-item>
-        <el-form-item label="区县">
+        <el-form-item :label="$t('profile.district')">
           <el-input v-model="addressForm.district" />
         </el-form-item>
-        <el-form-item label="详细地址">
+        <el-form-item :label="$t('profile.detailAddress')">
           <el-input v-model="addressForm.address" type="textarea" />
         </el-form-item>
         <el-form-item>
-          <el-checkbox v-model="addressForm.is_default">设为默认地址</el-checkbox>
+          <el-checkbox v-model="addressForm.is_default">{{ $t('profile.setDefault') }}</el-checkbox>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="showAddressDialog = false">取消</el-button>
-        <el-button type="primary" @click="handleSaveAddress" :loading="loading">保存</el-button>
+        <el-button @click="showAddressDialog = false">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="handleSaveAddress" :loading="loading">{{ $t('common.save') }}</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, reactive, computed } from 'vue';
 import { useUserStore } from '../../stores/user';
 import { useAddressStore } from '../../stores/cart';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Plus, ArrowLeft } from '@element-plus/icons-vue';
 import api from '../../api/axios';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const userStore = useUserStore();
 const addressStore = useAddressStore();
 
@@ -258,7 +260,7 @@ const passwordForm = reactive({
 
 const validateConfirmPassword = (rule, value, callback) => {
   if (value !== passwordForm.new_password) {
-    callback(new Error('两次输入的密码不一致'));
+    callback(new Error(t('profile.passwordMismatch')));
   } else {
     callback();
   }
@@ -266,38 +268,38 @@ const validateConfirmPassword = (rule, value, callback) => {
 
 const validateConfirmResetPassword = (rule, value, callback) => {
   if (value !== resetPasswordForm.new_password) {
-    callback(new Error('两次输入的密码不一致'));
+    callback(new Error(t('profile.passwordMismatch')));
   } else {
     callback();
   }
 };
 
-const passwordRules = {
-  old_password: [{ required: true, message: '请输入当前密码', trigger: 'blur' }],
+const passwordRules = computed(() => ({
+  old_password: [{ required: true, message: t('profile.oldPasswordRequired'), trigger: 'blur' }],
   new_password: [
-    { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+    { required: true, message: t('profile.newPasswordRequired'), trigger: 'blur' },
+    { min: 6, message: t('profile.passwordMinLength'), trigger: 'blur' }
   ],
   confirm_password: [
-    { required: true, message: '请确认新密码', trigger: 'blur' },
+    { required: true, message: t('profile.confirmPasswordRequired'), trigger: 'blur' },
     { validator: validateConfirmPassword, trigger: 'blur' }
   ]
-};
+}));
 
-const resetPasswordRules = {
+const resetPasswordRules = computed(() => ({
   code: [
-    { required: true, message: '请输入验证码', trigger: 'blur' },
-    { len: 6, message: '验证码为6位数字', trigger: 'blur' }
+    { required: true, message: t('profile.codeRequired'), trigger: 'blur' },
+    { len: 6, message: t('profile.codeLength'), trigger: 'blur' }
   ],
   new_password: [
-    { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+    { required: true, message: t('profile.newPasswordRequired'), trigger: 'blur' },
+    { min: 6, message: t('profile.passwordMinLength'), trigger: 'blur' }
   ],
   confirm_new_password: [
-    { required: true, message: '请确认新密码', trigger: 'blur' },
+    { required: true, message: t('profile.confirmPasswordRequired'), trigger: 'blur' },
     { validator: validateConfirmResetPassword, trigger: 'blur' }
   ]
-};
+}));
 
 onMounted(async () => {
   if (userStore.user) {
@@ -334,13 +336,13 @@ const handleUpdateProfile = async () => {
     }
     
     await userStore.updateProfile(formData);
-    ElMessage.success('个人信息更新成功');
+    ElMessage.success(t('profile.profileUpdated'));
   } catch (error) {
     // 处理用户名重复错误
     if (error.response?.data?.username) {
-      ElMessage.error(error.response.data.username[0] || '用户名已存在');
+      ElMessage.error(error.response.data.username[0] || t('profile.usernameExists'));
     } else {
-      ElMessage.error(error.response?.data?.message || '更新失败');
+      ElMessage.error(error.response?.data?.message || t('profile.updateFailed'));
     }
   } finally {
     loading.value = false;
@@ -379,30 +381,30 @@ const handleSaveAddress = async () => {
   try {
     if (editingAddress.value) {
       await addressStore.updateAddress(editingAddress.value.id, addressForm);
-      ElMessage.success('地址更新成功');
+      ElMessage.success(t('profile.addressUpdated'));
     } else {
       await addressStore.createAddress(addressForm);
-      ElMessage.success('地址添加成功');
+      ElMessage.success(t('profile.addressAdded'));
     }
     await addressStore.fetchAddresses();
     showAddressDialog.value = false;
   } catch (error) {
-    ElMessage.error('保存失败');
+    ElMessage.error(t('profile.saveFailed'));
   } finally {
     loading.value = false;
   }
 };
 
 const handleDeleteAddress = (id) => {
-  ElMessageBox.confirm('确定要删除这个地址吗？', '提示', {
+  ElMessageBox.confirm(t('profile.confirmDelete'), t('profile.confirmTitle'), {
     type: 'warning'
   }).then(async () => {
     try {
       await addressStore.deleteAddress(id);
       await addressStore.fetchAddresses();
-      ElMessage.success('删除成功');
+      ElMessage.success(t('profile.deleteSuccess'));
     } catch (error) {
-      ElMessage.error('删除失败');
+      ElMessage.error(t('profile.deleteFailed'));
     }
   });
 };
@@ -411,9 +413,9 @@ const handleSetDefault = async (address) => {
   try {
     await addressStore.updateAddress(address.id, { ...address, is_default: true });
     await addressStore.fetchAddresses();
-    ElMessage.success('设置成功');
+    ElMessage.success(t('profile.setSuccess'));
   } catch (error) {
-    ElMessage.error('设置失败');
+    ElMessage.error(t('profile.setFailed'));
   }
 };
 
@@ -429,12 +431,12 @@ const handleChangePassword = async () => {
           old_password: passwordForm.old_password,
           new_password: passwordForm.new_password
         });
-        ElMessage.success('密码修改成功');
+        ElMessage.success(t('profile.passwordChanged'));
         passwordForm.old_password = '';
         passwordForm.new_password = '';
         passwordForm.confirm_password = '';
       } catch (error) {
-        ElMessage.error(error.response?.data?.old_password?.[0] || '密码修改失败');
+        ElMessage.error(error.response?.data?.old_password?.[0] || t('profile.passwordChangeFailed'));
       } finally {
         passwordLoading.value = false;
       }
@@ -456,14 +458,14 @@ const startResetCountdown = () => {
 const handleSendResetCode = async () => {
   try {
     await api.post('auth/send_reset_code/');
-    ElMessage.success('验证码已发送到您的邮箱');
+    ElMessage.success(t('profile.codeSent'));
     startResetCountdown();
   } catch (error) {
     const detail = error.response?.data?.detail;
     if (detail) {
       ElMessage.error(detail);
     } else {
-      ElMessage.error('验证码发送失败');
+      ElMessage.error(t('profile.codeSendFailed'));
     }
   }
 };
@@ -479,7 +481,7 @@ const handleResetPassword = async () => {
           code: resetPasswordForm.code,
           new_password: resetPasswordForm.new_password
         });
-        ElMessage.success('密码重置成功');
+        ElMessage.success(t('profile.resetSuccess'));
         resetPasswordForm.code = '';
         resetPasswordForm.new_password = '';
         resetPasswordForm.confirm_new_password = '';
@@ -489,7 +491,7 @@ const handleResetPassword = async () => {
         if (detail) {
           ElMessage.error(detail);
         } else {
-          ElMessage.error('密码重置失败');
+          ElMessage.error(t('profile.resetFailed'));
         }
       } finally {
         resetPasswordLoading.value = false;

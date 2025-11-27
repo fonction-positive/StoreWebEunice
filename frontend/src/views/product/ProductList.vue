@@ -8,7 +8,7 @@
       <div class="container">
         <!-- Search Results Header -->
         <div v-if="searchQuery" class="search-header">
-          <p class="search-count">找到 {{ filteredProducts.length }} 个商品</p>
+          <p class="search-count">{{ $t('product.found') }} {{ filteredProducts.length }} {{ $t('product.items') }}</p>
         </div>
 
         <!-- Category Tabs -->
@@ -17,7 +17,7 @@
             :class="['category-tab', { active: activeCategory === 'all' }]"
             @click="activeCategory = 'all'"
           >
-            全部
+            {{ $t('product.all') }}
           </button>
           <button 
             v-for="category in categories" 
@@ -59,7 +59,7 @@
         <!-- Empty State -->
         <el-empty 
           v-if="!productStore.loading && filteredProducts.length === 0" 
-          description="暂无商品"
+          :description="$t('product.noProducts')"
           :image-size="120"
         />
       </div>
@@ -73,7 +73,9 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useProductStore } from '../../stores/product';
 import { useRouter, useRoute } from 'vue-router';
 import { Picture } from '@element-plus/icons-vue';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const productStore = useProductStore();
 const router = useRouter();
 const route = useRoute();

@@ -6,9 +6,9 @@
         <div class="title-row">
           <el-button text @click="$router.push('/')" class="back-button">
             <el-icon><ArrowLeft /></el-icon>
-            返回
+            {{ $t('cart.back') }}
           </el-button>
-          <h1 class="page-title">购物车</h1>
+          <h1 class="page-title">{{ $t('cart.title') }}</h1>
         </div>
       </div>
     </header>
@@ -47,7 +47,7 @@
             </div>
 
             <div class="item-subtotal">
-              <span class="subtotal-label">小计</span>
+              <span class="subtotal-label">{{ $t('cart.subtotal') }}</span>
               <span class="subtotal-price">¥{{ item.subtotal }}</span>
             </div>
 
@@ -57,7 +57,7 @@
               @click="handleRemove(item.id)"
               class="remove-btn"
             >
-              删除
+              {{ $t('cart.remove') }}
             </el-button>
           </div>
         </div>
@@ -65,15 +65,15 @@
         <!-- Cart Summary -->
         <div class="cart-summary">
           <div class="summary-card">
-            <h3 class="summary-title">订单摘要</h3>
+            <h3 class="summary-title">{{ $t('cart.orderSummary') }}</h3>
             
             <div class="summary-row">
-              <span>商品总数</span>
-              <span>{{ selectedCount }} 件</span>
+              <span>{{ $t('cart.itemCount') }}</span>
+              <span>{{ selectedCount }} {{ $t('cart.itemUnit') }}</span>
             </div>
             
             <div class="summary-row total">
-              <span>总计</span>
+              <span>{{ $t('cart.total') }}</span>
               <span class="total-price">¥{{ selectedTotal }}</span>
             </div>
 
@@ -84,7 +84,7 @@
               :disabled="selectedCount === 0"
               :class="['checkout-btn', { 'is-disabled': selectedCount === 0 }]"
             >
-              去结算
+              {{ $t('cart.checkout') }}
             </el-button>
           </div>
         </div>
@@ -92,10 +92,10 @@
 
       <el-empty 
         v-else 
-        description="购物车是空的"
+        :description="$t('cart.empty')"
         :image-size="120"
       >
-        <el-button type="primary" @click="$router.push('/')">去逛逛</el-button>
+        <el-button type="primary" @click="$router.push('/')">{{ $t('cart.goShopping') }}</el-button>
       </el-empty>
     </div>
   </div>
@@ -105,12 +105,14 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useCartStore } from '../../stores/cart';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { ArrowLeft, Picture } from '@element-plus/icons-vue';
 import api from '../../api/axios';
 
 const cartStore = useCartStore();
 const router = useRouter();
+const { t } = useI18n();
 
 onMounted(() => {
   cartStore.fetchCart();
@@ -153,16 +155,16 @@ const handleQuantityChange = async (item) => {
 };
 
 const handleRemove = (itemId) => {
-  ElMessageBox.confirm('确定要删除这件商品吗？', '提示', {
-    confirmButtonText: '删除',
-    cancelButtonText: '取消',
+  ElMessageBox.confirm(t('cart.confirmRemove'), t('cart.confirmTitle'), {
+    confirmButtonText: t('cart.remove'),
+    cancelButtonText: t('cart.cancel'),
     type: 'warning',
   }).then(async () => {
     try {
       await cartStore.removeItem(itemId);
-      ElMessage.success('已删除');
+      ElMessage.success(t('messages.deleteSuccess'));
     } catch (error) {
-      ElMessage.error('删除失败');
+      ElMessage.error(t('messages.operationFailed'));
     }
   }).catch(() => {});
 };
@@ -170,7 +172,7 @@ const handleRemove = (itemId) => {
 const handleCheckout = () => {
   const selectedItems = cartStore.items.filter(item => item.selected);
   if (selectedItems.length === 0) {
-    ElMessage.warning('请选择要结算的商品');
+    ElMessage.warning(t('cart.selectItems'));
     return;
   }
   // 将选中的商品信息存储到 sessionStorage

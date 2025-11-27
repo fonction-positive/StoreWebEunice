@@ -5,9 +5,9 @@
       <div class="header-content">
         <el-button text @click="$router.push('/')" class="back-button">
           <el-icon><ArrowLeft /></el-icon>
-          返回首页
+          {{ $t('order.backHome') }}
         </el-button>
-        <h1 class="page-title">我的订单</h1>
+        <h1 class="page-title">{{ $t('order.myOrders') }}</h1>
       </div>
     </header>
 
@@ -36,7 +36,7 @@
         >
           <div class="order-header">
             <div class="order-info">
-              <span class="order-no">订单号：{{ order.order_no }}</span>
+              <span class="order-no">{{ $t('order.orderNumber') }}：{{ order.order_no }}</span>
               <span class="order-time">{{ formatDate(order.created_at) }}</span>
             </div>
             <el-tag :type="getStatusType(order.status)" size="large">
@@ -55,7 +55,7 @@
 
           <div class="order-footer">
             <div class="order-total">
-              <span>总计：</span>
+              <span>{{ $t('order.total') }}：</span>
               <span class="total-amount">¥{{ order.total_amount }}</span>
             </div>
             <div class="order-actions" @click.stop>
@@ -64,7 +64,7 @@
                 size="small"
                 @click="handlePay(order.id)"
               >
-                去支付
+                {{ $t('order.pay') }}
               </el-button>
               <el-button 
                 v-if="order.status === 'pending' || order.status === 'paid'"
@@ -72,7 +72,7 @@
                 type="danger"
                 @click="handleCancel(order.id)"
               >
-                取消订单
+                {{ $t('order.cancel') }}
               </el-button>
               <el-button 
                 v-if="order.status === 'shipped'"
@@ -80,36 +80,38 @@
                 type="primary"
                 @click="handleConfirm(order.id)"
               >
-                确认收货
+                {{ $t('order.confirm') }}
               </el-button>
             </div>
           </div>
         </div>
       </div>
 
-      <el-empty v-else description="暂无订单" :image-size="120">
-        <el-button type="primary" @click="$router.push('/')">去逛逛</el-button>
+      <el-empty v-else :description="$t('order.noOrders')" :image-size="120">
+        <el-button type="primary" @click="$router.push('/')">{{ $t('order.goShopping') }}</el-button>
       </el-empty>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useOrderStore } from '../../stores/cart';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { ArrowLeft } from '@element-plus/icons-vue';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const orderStore = useOrderStore();
 const currentTab = ref('all');
 
-const tabs = [
-  { label: '全部', value: 'all' },
-  { label: '待支付', value: 'pending' },
-  { label: '待发货', value: 'paid' },
-  { label: '待收货', value: 'shipped' },
-  { label: '已完成', value: 'completed' },
-];
+const tabs = computed(() => [
+  { label: t('order.all'), value: 'all' },
+  { label: t('order.waitingPayment'), value: 'pending' },
+  { label: t('order.waitingShip'), value: 'paid' },
+  { label: t('order.waitingReceive'), value: 'shipped' },
+  { label: t('order.completed'), value: 'completed' },
+]);
 
 onMounted(() => {
   orderStore.fetchOrders();
@@ -140,25 +142,25 @@ const getStatusType = (status) => {
 const handlePay = async (orderId) => {
   try {
     await orderStore.payOrder(orderId);
-    ElMessage.success('支付成功');
+    ElMessage.success(t('order.paySuccess'));
     orderStore.fetchOrders(currentTab.value === 'all' ? null : currentTab.value);
   } catch (error) {
-    ElMessage.error('支付失败');
+    ElMessage.error(t('order.payError'));
   }
 };
 
 const handleCancel = (orderId) => {
-  ElMessageBox.confirm('确定要取消这个订单吗？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  ElMessageBox.confirm(t('order.confirmCancel'), t('order.confirmTitle'), {
+    confirmButtonText: t('order.confirmButton'),
+    cancelButtonText: t('order.cancelButton'),
     type: 'warning',
   }).then(async () => {
     try {
       await orderStore.cancelOrder(orderId);
-      ElMessage.success('订单已取消');
+      ElMessage.success(t('order.cancelSuccess'));
       orderStore.fetchOrders(currentTab.value === 'all' ? null : currentTab.value);
     } catch (error) {
-      ElMessage.error('取消失败');
+      ElMessage.error(t('order.cancelError'));
     }
   }).catch(() => {});
 };
@@ -166,10 +168,10 @@ const handleCancel = (orderId) => {
 const handleConfirm = async (orderId) => {
   try {
     await orderStore.confirmOrder(orderId);
-    ElMessage.success('确认收货成功');
+    ElMessage.success(t('order.confirmSuccess'));
     orderStore.fetchOrders(currentTab.value === 'all' ? null : currentTab.value);
   } catch (error) {
-    ElMessage.error('操作失败');
+    ElMessage.error(t('order.confirmError'));
   }
 };
 </script>

@@ -7,7 +7,7 @@
     <!-- Breadcrumb -->
     <div class="breadcrumb-container">
       <el-breadcrumb separator="›">
-        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/' }">{{ $t('product.home') }}</el-breadcrumb-item>
         <el-breadcrumb-item>{{ productStore.currentProduct.category_name }}</el-breadcrumb-item>
         <el-breadcrumb-item>{{ productStore.currentProduct.name }}</el-breadcrumb-item>
       </el-breadcrumb>
@@ -27,7 +27,7 @@
           />
           <div v-else class="image-placeholder">
             <el-icon :size="80"><Picture /></el-icon>
-            <p>暂无图片</p>
+            <p>{{ $t('product.noImage') }}</p>
           </div>
         </div>
         
@@ -39,7 +39,7 @@
             :class="['thumbnail', { active: currentImageIndex === index }]"
             @click="currentImageIndex = index"
           >
-            <img :src="img.image" :alt="`图片 ${index + 1}`" />
+            <img :src="img.image" :alt="`${$t('product.image')} ${index + 1}`" />
           </div>
         </div>
       </div>
@@ -52,24 +52,24 @@
         <div class="divider"></div>
         
         <div class="description-section">
-          <h3 class="section-label">商品描述</h3>
+          <h3 class="section-label">{{ $t('product.description') }}</h3>
           <p class="product-description">
-            {{ productStore.currentProduct.description || '暂无描述' }}
+            {{ productStore.currentProduct.description || $t('product.noDescription') }}
           </p>
         </div>
         
         <div class="divider"></div>
         
         <div class="stock-info">
-          <span class="section-label">库存：</span>
+          <span class="section-label">{{ $t('product.stock') }}：</span>
           <span :class="['stock-value', { 'out-of-stock': productStore.currentProduct.stock === 0 }]">
-            {{ productStore.currentProduct.stock > 0 ? `${productStore.currentProduct.stock} 件` : '缺货' }}
+            {{ productStore.currentProduct.stock > 0 ? `${productStore.currentProduct.stock} ${$t('product.inStock')}` : $t('product.outOfStock') }}
           </span>
         </div>
         
         <div class="actions-section">
           <div class="quantity-selector">
-            <span class="section-label">数量</span>
+            <span class="section-label">{{ $t('product.quantity') }}</span>
             <el-input-number 
               v-model="quantity" 
               :min="1" 
@@ -85,7 +85,7 @@
             :disabled="productStore.currentProduct.stock === 0"
             class="add-to-cart-btn"
           >
-            {{ productStore.currentProduct.stock > 0 ? '加入购物车' : '缺货' }}
+            {{ productStore.currentProduct.stock > 0 ? $t('product.addToCart') : $t('product.outOfStock') }}
           </el-button>
         </div>
       </div>
@@ -101,7 +101,9 @@ import { useCartStore } from '../../stores/cart';
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { Picture } from '@element-plus/icons-vue';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const productStore = useProductStore();
 const cartStore = useCartStore();
 const route = useRoute();
@@ -122,9 +124,9 @@ onMounted(() => {
 const addToCart = async () => {
   try {
     await cartStore.addToCart(route.params.id, quantity.value);
-    ElMessage.success(`已添加 ${quantity.value} 件商品到购物车`);
+    ElMessage.success(t('product.addedToCart', { count: quantity.value }));
   } catch (error) {
-    ElMessage.error('添加失败，请重试');
+    ElMessage.error(t('product.addError'));
   }
 };
 </script>

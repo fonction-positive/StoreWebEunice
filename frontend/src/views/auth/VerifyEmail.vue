@@ -7,8 +7,8 @@
       </div>
 
       <!-- Title -->
-      <h1 class="title">验证您的邮箱</h1>
-      <p class="subtitle">我们已向 <strong>{{ email }}</strong> 发送了验证码</p>
+      <h1 class="title">{{ $t('auth.verify.title') }}</h1>
+      <p class="subtitle">{{ $t('auth.verify.subtitle') }} <strong>{{ email }}</strong></p>
 
       <!-- Code Input -->
       <div class="code-container">
@@ -46,16 +46,16 @@
         :disabled="loading || codeDigits.join('').length !== 6"
         class="verify-button"
       >
-        {{ loading ? '验证中...' : '验证' }}
+        {{ loading ? $t('auth.verify.verifying') : $t('auth.verify.verify') }}
       </el-button>
 
       <!-- Resend -->
       <div class="resend-container">
         <span v-if="countdown > 0" class="resend-text">
-          {{ countdown }} 秒后可重新发送
+          {{ $t('auth.verify.countdown', { count: countdown }) }}
         </span>
         <a v-else @click="resendCode" class="resend-link">
-          重新发送验证码
+          {{ $t('auth.verify.resend') }}
         </a>
       </div>
     </div>
@@ -65,12 +65,14 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { ElMessage } from 'element-plus';
 import axios from '../../api/axios';
 import { useUserStore } from '../../stores/user';
 
 const router = useRouter();
 const route = useRoute();
+const { t } = useI18n();
 
 const email = ref(route.query.email || '');
 const codeDigits = ref(['', '', '', '', '', '']);
@@ -137,7 +139,7 @@ const handleVerify = async () => {
   const code = codeDigits.value.join('');
   
   if (code.length !== 6) {
-    errorMessage.value = '请输入6位验证码';
+    errorMessage.value = t('auth.verify.codeError');
     return;
   }
   
@@ -163,12 +165,12 @@ const handleVerify = async () => {
     // 清除注册数据
     localStorage.removeItem('registerData');
     
-    ElMessage.success('注册成功！欢迎加入');
+    ElMessage.success(t('messages.registerSuccess'));
     
     // 跳转到首页
     router.push('/');
   } catch (error) {
-    let errorMsg = '验证失败';
+    let errorMsg = t('messages.verifyError');
     if (error.response?.data?.detail) {
       errorMsg = error.response.data.detail;
     }
@@ -189,16 +191,16 @@ const resendCode = async () => {
     const registerData = JSON.parse(localStorage.getItem('registerData') || '{}');
     
     if (!registerData.username || !registerData.email || !registerData.password) {
-      ElMessage.error('注册信息已过期，请重新注册');
+      ElMessage.error(t('messages.registerDataExpired'));
       router.push('/register');
       return;
     }
     
     await axios.post('auth/register/', registerData);
-    ElMessage.success('验证码已重新发送');
+    ElMessage.success(t('messages.codeResent'));
     startCountdown();
   } catch (error) {
-    let errorMsg = '发送失败';
+    let errorMsg = t('messages.sendCodeError');
     if (error.response?.data?.detail) {
       errorMsg = error.response.data.detail;
     }
@@ -208,7 +210,7 @@ const resendCode = async () => {
 
 onMounted(() => {
   if (!email.value) {
-    ElMessage.error('缺少邮箱信息');
+    ElMessage.error(t('messages.emailMissing'));
     router.push('/register');
     return;
   }
