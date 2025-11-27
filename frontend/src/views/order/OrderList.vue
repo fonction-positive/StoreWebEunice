@@ -3,9 +3,9 @@
     <!-- Header -->
     <header class="header">
       <div class="header-content">
-        <el-button text @click="$router.push('/')" class="back-button">
+        <el-button text @click="$router.back()" class="back-button">
           <el-icon><ArrowLeft /></el-icon>
-          {{ $t('order.backHome') }}
+          {{ $t('common.back') }}
         </el-button>
         <h1 class="page-title">{{ $t('order.myOrders') }}</h1>
       </div>
