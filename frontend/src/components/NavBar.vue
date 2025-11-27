@@ -5,14 +5,14 @@
         <!-- Logo -->
         <div class="logo" @click="$router.push('/')">
           <div class="logo-icon">F</div>
-          <span class="logo-text">FluffyLetter</span>
+          <span class="logo-text">{{ $t('common.brand') }}</span>
         </div>
 
         <!-- 搜索框 - 桌面端 -->
         <div class="search-container desktop-search">
           <el-input 
             v-model="searchQuery" 
-            placeholder="搜索商品..." 
+            :placeholder="$t('common.search')" 
             @keyup.enter="handleSearchClick"
             clearable
             size="large"
@@ -58,36 +58,54 @@
               <el-dropdown-menu>
                 <el-dropdown-item @click="$router.push('/user/profile')">
                   <el-icon><User /></el-icon>
-                  个人中心
+                  {{ $t('nav.profile') }}
                 </el-dropdown-item>
                 <el-dropdown-item @click="$router.push('/user/orders')">
                   <el-icon><List /></el-icon>
-                  我的订单
+                  {{ $t('nav.orders') }}
                 </el-dropdown-item>
                 <el-dropdown-item v-if="userStore.isAdmin" divided @click="$router.push('/admin/dashboard')">
                   <el-icon><DataAnalysis /></el-icon>
-                  数据统计
+                  {{ $t('nav.admin.dashboard') }}
                 </el-dropdown-item>
                 <el-dropdown-item v-if="userStore.isAdmin" @click="$router.push('/admin/products')">
                   <el-icon><Goods /></el-icon>
-                  商品管理
+                  {{ $t('nav.admin.products') }}
                 </el-dropdown-item>
                 <el-dropdown-item v-if="userStore.isAdmin" @click="$router.push('/admin/orders')">
                   <el-icon><Document /></el-icon>
-                  订单管理
+                  {{ $t('nav.admin.orders') }}
                 </el-dropdown-item>
                 <el-dropdown-item v-if="userStore.isAdmin" @click="$router.push('/admin/users')">
                   <el-icon><User /></el-icon>
-                  用户管理
+                  {{ $t('nav.admin.users') }}
                 </el-dropdown-item>
                 <el-dropdown-item divided @click="handleLogout">
                   <el-icon><SwitchButton /></el-icon>
-                  退出登录
+                  {{ $t('nav.logout') }}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
-          <el-button v-else text @click="$router.push('/login')" class="login-button">登录</el-button>
+          <el-button v-else text @click="$router.push('/login')" class="login-button">{{ $t('nav.login') }}</el-button>
+
+          <!-- 语言切换 -->
+          <el-dropdown trigger="click" class="language-dropdown">
+            <div class="icon-button language-toggle">
+              <el-icon :size="22"><Position /></el-icon>
+              <span class="language-text">{{ currentLanguage }}</span>
+            </div>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item @click="changeLanguage('zh-CN')">
+                  简体中文
+                </el-dropdown-item>
+                <el-dropdown-item @click="changeLanguage('en-US')">
+                  English
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
 
           <!-- 主题切换 -->
           <div class="icon-button theme-toggle" @click="themeStore.toggleTheme">
@@ -113,14 +131,14 @@
     <!-- 移动端搜索对话框 -->
     <el-dialog 
       v-model="showMobileSearch" 
-      title="搜索商品"
+      :title="$t('common.search')"
       :width="'90%'"
       :show-close="true"
       class="mobile-search-dialog"
     >
       <el-input 
         v-model="searchQuery" 
-        placeholder="搜索商品..." 
+        :placeholder="$t('common.search')" 
         @keyup.enter="handleSearchClick"
         clearable
         size="large"
@@ -145,12 +163,13 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import { useProductStore } from '../stores/product';
 import { useUserStore } from '../stores/user';
 import { useCartStore } from '../stores/cart';
 import { useThemeStore } from '../stores/theme';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { 
   Search, 
   ShoppingCart, 
@@ -160,7 +179,8 @@ import {
   SwitchButton, 
   DataAnalysis, 
   Goods, 
-  Document
+  Document,
+  Position
 } from '@element-plus/icons-vue';
 
 const productStore = useProductStore();
@@ -169,8 +189,18 @@ const cartStore = useCartStore();
 const themeStore = useThemeStore();
 const router = useRouter();
 const route = useRoute();
+const { locale } = useI18n();
 const searchQuery = ref('');
 const showMobileSearch = ref(false);
+
+const currentLanguage = computed(() => {
+  return locale.value === 'zh-CN' ? '中文' : 'EN';
+});
+
+const changeLanguage = (lang) => {
+  locale.value = lang;
+  localStorage.setItem('language', lang);
+};
 
 // Initialize search query from URL on mount
 onMounted(() => {
@@ -358,6 +388,18 @@ const handleLogout = () => {
   margin-left: 0;
 }
 
+.language-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.language-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
 /* 移动端搜索对话框 */
 .mobile-search-dialog :deep(.el-dialog) {
   border-radius: var(--radius-lg);
@@ -400,6 +442,11 @@ const handleLogout = () => {
 
   /* 隐藏用户名文字 */
   .user-name {
+    display: none;
+  }
+
+  /* 隐藏语言文字 */
+  .language-text {
     display: none;
   }
 

@@ -7,8 +7,8 @@
       </div>
 
       <!-- Title -->
-      <h1 class="title">欢迎回来</h1>
-      <p class="subtitle">登录您的账户以继续</p>
+      <h1 class="title">{{ $t('auth.login.title') }}</h1>
+      <p class="subtitle">{{ $t('auth.login.subtitle') }}</p>
 
       <!-- Forms Container with Transition -->
       <transition name="fade-slide" mode="out-in">
@@ -26,7 +26,7 @@
         <el-form-item prop="username">
           <el-input 
             v-model="form.username" 
-            placeholder="请输入用户名或邮箱"
+            :placeholder="$t('auth.login.usernamePlaceholder')"
             size="large"
             clearable
           >
@@ -40,7 +40,7 @@
           <el-input 
             v-model="form.password" 
             :type="showPassword ? 'text' : 'password'"
-            placeholder="请输入密码"
+            :placeholder="$t('auth.login.passwordPlaceholder')"
             size="large"
             clearable
             @keyup.enter="handleLogin"
@@ -70,7 +70,7 @@
             :disabled="loading"
             class="login-button"
           >
-            {{ loading ? '登录中...' : '登录' }}
+            {{ loading ? $t('common.loading') : $t('common.login') }}
           </el-button>
 
           <el-button 
@@ -78,13 +78,13 @@
             @click="$router.push('/register')"
             class="register-button"
           >
-            注册新账户
+            {{ $t('auth.login.registerButton') }}
           </el-button>
 
           <!-- Divider -->
           <div class="divider">
             <span class="divider-line"></span>
-            <span class="divider-text">或</span>
+            <span class="divider-text">{{ $t('common.or') }}</span>
             <span class="divider-line"></span>
           </div>
 
@@ -94,7 +94,7 @@
               <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span>使用邮箱验证登录</span>
+            <span>{{ $t('auth.login.switchToEmail') }}</span>
           </a>
         </div>
       </el-form>
@@ -113,7 +113,7 @@
         <el-form-item prop="email">
           <el-input 
             v-model="emailForm.email" 
-            placeholder="请输入邮箱地址"
+            :placeholder="$t('auth.login.emailPlaceholder')"
             size="large"
             clearable
           >
@@ -127,7 +127,7 @@
           <div class="code-input-group">
             <el-input 
               v-model="emailForm.code" 
-              placeholder="请输入验证码"
+              :placeholder="$t('auth.login.codePlaceholder')"
               size="large"
               clearable
               @keyup.enter="handleEmailLogin"
@@ -143,7 +143,7 @@
               class="code-button"
               size="large"
             >
-              {{ countdown > 0 ? `${countdown}秒后重试` : '发送验证码' }}
+              {{ countdown > 0 ? $t('auth.login.retryAfter', { count: countdown }) : $t('auth.login.sendCode') }}
             </el-button>
           </div>
         </el-form-item>
@@ -158,7 +158,7 @@
             :disabled="loading"
             class="login-button"
           >
-            {{ loading ? '登录中...' : '登录' }}
+            {{ loading ? $t('common.loading') : $t('common.login') }}
           </el-button>
 
           <el-button 
@@ -166,13 +166,13 @@
             @click="$router.push('/register')"
             class="register-button"
           >
-            注册新账户
+            {{ $t('auth.login.registerButton') }}
           </el-button>
 
           <!-- Divider -->
           <div class="divider">
             <span class="divider-line"></span>
-            <span class="divider-text">或</span>
+            <span class="divider-text">{{ $t('common.or') }}</span>
             <span class="divider-line"></span>
           </div>
 
@@ -182,7 +182,7 @@
               <path d="M19 11H5C3.89543 11 3 11.8954 3 13V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V13C21 11.8954 20.1046 11 19 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span>使用账号密码登录</span>
+            <span>{{ $t('auth.login.switchToPassword') }}</span>
           </a>
         </div>
       </el-form>
@@ -192,15 +192,17 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useUserStore } from '../../stores/user';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { ElMessage } from 'element-plus';
 import { User, Lock, View, Hide, Message } from '@element-plus/icons-vue';
 import axios from '../../api/axios';
 
 const userStore = useUserStore();
 const router = useRouter();
+const { t } = useI18n();
 
 // Login mode: 'password' or 'email'
 const loginMode = ref('password');
@@ -232,26 +234,26 @@ const countdown = ref(0);
 let countdownTimer = null;
 
 // 表单验证规则
-const rules = {
+const rules = computed(() => ({
   username: [
-    { required: true, message: '请输入用户名或邮箱', trigger: 'blur' }
+    { required: true, message: t('auth.login.usernameRequired'), trigger: 'blur' }
   ],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, message: '密码至少6位', trigger: 'blur' }
+    { required: true, message: t('auth.login.passwordRequired'), trigger: 'blur' },
+    { min: 6, message: t('auth.login.passwordMin'), trigger: 'blur' }
   ]
-};
+}));
 
-const emailRules = {
+const emailRules = computed(() => ({
   email: [
-    { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
+    { required: true, message: t('auth.login.emailRequired'), trigger: 'blur' },
+    { type: 'email', message: t('auth.login.emailFormat'), trigger: 'blur' }
   ],
   code: [
-    { required: true, message: '请输入验证码', trigger: 'blur' },
-    { len: 6, message: '验证码为6位数字', trigger: 'blur' }
+    { required: true, message: t('auth.login.codeRequired'), trigger: 'blur' },
+    { len: 6, message: t('auth.login.codeLength'), trigger: 'blur' }
   ]
-};
+}));
 
 // 密码登录
 const handleLogin = async () => {
@@ -261,7 +263,7 @@ const handleLogin = async () => {
   try {
     await formRef.value.validate();
   } catch (error) {
-    ElMessage.warning('请正确填写表单信息');
+    ElMessage.warning(t('messages.formValidationError'));
     return;
   }
 
@@ -270,11 +272,11 @@ const handleLogin = async () => {
   errorMessage.value = '';
   try {
     await userStore.login(form.value.username, form.value.password);
-    ElMessage.success('登录成功！欢迎回来');
+    ElMessage.success(t('messages.loginSuccess'));
     errorMessage.value = '';
     router.push('/');
   } catch (error) {
-    let errorMsg = '登录失败，请检查用户名和密码';
+    let errorMsg = t('messages.loginError');
     
     // 处理不同的错误情况
     if (error.response?.data?.detail) {
@@ -314,7 +316,7 @@ const sendCode = async () => {
       email: emailForm.value.email
     });
     
-    ElMessage.success('验证码已发送到您的邮箱');
+    ElMessage.success(t('messages.codeSent'));
     
     // 开始倒计时
     countdown.value = 60;
@@ -329,7 +331,7 @@ const sendCode = async () => {
       }
     }, 1000);
   } catch (error) {
-    let errorMsg = '发送验证码失败';
+    let errorMsg = t('messages.sendCodeError');
     if (error.response?.data?.detail) {
       errorMsg = error.response.data.detail;
     }
@@ -348,7 +350,7 @@ const handleEmailLogin = async () => {
   try {
     await emailFormRef.value.validate();
   } catch (error) {
-    ElMessage.warning('请正确填写表单信息');
+    ElMessage.warning(t('messages.formValidationError'));
     return;
   }
 
@@ -370,10 +372,10 @@ const handleEmailLogin = async () => {
     userStore.refreshToken = response.data.refresh;
     userStore.user = response.data.user;
     
-    ElMessage.success('登录成功！欢迎');
+    ElMessage.success(t('messages.loginSuccess'));
     router.push('/');
   } catch (error) {
-    let errorMsg = '登录失败';
+    let errorMsg = t('messages.loginError');
     if (error.response?.data?.detail) {
       errorMsg = error.response.data.detail;
     }
