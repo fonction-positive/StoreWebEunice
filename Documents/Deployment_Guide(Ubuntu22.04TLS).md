@@ -51,7 +51,6 @@ GRANT ALL ON SCHEMA public TO storewebuser;
 **注意：**
 1. 请将 `'your_secure_password'` 替换为您自己的强密码。
 2. 如果您使用的是 PostgreSQL 15 及以上版本，必须执行 `GRANT ALL ON SCHEMA public ...` 这行命令，否则会出现权限错误。
-临时密码：Eunice@123
 
 ## 4. 项目代码获取
 
