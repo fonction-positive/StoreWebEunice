@@ -178,7 +178,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             product_ids = [item['product'].id for item in order_items]
             cart.items.filter(product_id__in=product_ids).delete()
 
-        return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+        return Response(OrderSerializer(order, context={'request': request}).data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'])
     def pay(self, request, pk=None):

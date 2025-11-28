@@ -33,9 +33,21 @@ class CartSerializer(serializers.ModelSerializer):
         return sum(item.quantity for item in obj.items.all())
 
 class OrderItemSerializer(serializers.ModelSerializer):
+    product_image = serializers.SerializerMethodField()
+    
     class Meta:
         model = OrderItem
-        fields = ('id', 'product', 'product_name', 'price', 'quantity', 'subtotal')
+        fields = ('id', 'product', 'product_name', 'product_image', 'price', 'quantity', 'subtotal')
+    
+    def get_product_image(self, obj):
+        if obj.product:
+            # 获取主图
+            main_img = obj.product.images.filter(is_main=True).first()
+            if not main_img:
+                main_img = obj.product.images.first()
+            if main_img and main_img.image:
+                return main_img.image.url
+        return None
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
