@@ -17,7 +17,7 @@
       <div class="section status-section">
         <el-result 
           :icon="getStatusIcon(orderStore.currentOrder.status)"
-          :title="orderStore.currentOrder.status_display"
+          :title="getStatusText(orderStore.currentOrder.status)"
         >
           <template #sub-title>
             <p>{{ $t('order.orderNumber') }}：{{ orderStore.currentOrder.order_no }}</p>
@@ -141,6 +141,17 @@ const getStatusIcon = (status) => {
     cancelled: 'error'
   };
   return iconMap[status] || 'info';
+};
+
+const getStatusText = (status) => {
+  const statusMap = {
+    pending: t('order.pending'),
+    paid: t('order.paid'),
+    shipped: t('order.shipped'),
+    completed: t('order.completed'),
+    cancelled: t('order.cancelled')
+  };
+  return statusMap[status] || status;
 };
 
 const handlePay = async () => {

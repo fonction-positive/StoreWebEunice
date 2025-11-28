@@ -40,7 +40,7 @@
               <span class="order-time">{{ formatDate(order.created_at) }}</span>
             </div>
             <el-tag :type="getStatusType(order.status)" size="large">
-              {{ order.status_display }}
+              {{ getStatusText(order.status) }}
             </el-tag>
           </div>
 
@@ -137,6 +137,17 @@ const getStatusType = (status) => {
     cancelled: 'danger'
   };
   return typeMap[status] || 'info';
+};
+
+const getStatusText = (status) => {
+  const statusMap = {
+    pending: t('order.pending'),
+    paid: t('order.paid'),
+    shipped: t('order.shipped'),
+    completed: t('order.completed'),
+    cancelled: t('order.cancelled')
+  };
+  return statusMap[status] || status;
 };
 
 const handlePay = async (orderId) => {
