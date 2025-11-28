@@ -46,10 +46,22 @@
 
           <div class="order-items">
             <div v-for="item in order.items" :key="item.id" class="order-item">
-              <div class="item-name">{{ item.product_name }}</div>
-              <div class="item-detail">
-                <span>¥{{ item.price }} × {{ item.quantity }}</span>
+              <img 
+                v-if="item.product_image" 
+                :src="item.product_image" 
+                :alt="item.product_name"
+                class="item-image"
+              />
+              <div v-else class="item-image-placeholder">
+                <el-icon :size="32"><Picture /></el-icon>
               </div>
+              <div class="item-info">
+                <div class="item-name">{{ item.product_name }}</div>
+                <div class="item-detail">
+                  <span>¥{{ item.price }} × {{ item.quantity }}</span>
+                </div>
+              </div>
+              <div class="item-subtotal">¥{{ item.subtotal }}</div>
             </div>
           </div>
 
@@ -98,7 +110,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useOrderStore } from '../../stores/cart';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { ArrowLeft } from '@element-plus/icons-vue';
+import { ArrowLeft, Picture } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -278,13 +290,16 @@ const handleConfirm = async (orderId) => {
   background: var(--color-bg-primary);
   border-radius: var(--radius-lg);
   padding: var(--spacing-xl);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
 }
 
 .order-card:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  border-color: var(--color-primary-light, rgba(0, 122, 255, 0.3));
 }
 
 .order-header {
@@ -314,21 +329,69 @@ const handleConfirm = async (orderId) => {
 
 .order-items {
   padding: var(--spacing-md) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
 
 .order-item {
   display: flex;
-  justify-content: space-between;
-  padding: var(--spacing-sm) 0;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
+}
+
+.order-item:hover {
+  background-color: var(--color-bg-tertiary, #f5f5f5);
+}
+
+.item-image {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.item-image-placeholder {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.item-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .item-name {
   font-size: 15px;
+  font-weight: 500;
+  margin-bottom: var(--spacing-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .item-detail {
   color: var(--color-text-secondary);
   font-size: 14px;
+}
+
+.item-subtotal {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-price);
+  flex-shrink: 0;
 }
 
 .order-footer {
