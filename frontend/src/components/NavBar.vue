@@ -64,19 +64,19 @@
                   <el-icon><List /></el-icon>
                   {{ $t('nav.orders') }}
                 </el-dropdown-item>
-                <el-dropdown-item v-if="userStore.isAdmin" divided @click="$router.push('/admin/dashboard')">
+                <el-dropdown-item v-if="userStore.isAdmin" divided @click="$router.push('/manage/dashboard')">
                   <el-icon><DataAnalysis /></el-icon>
                   {{ $t('nav.admin.dashboard') }}
                 </el-dropdown-item>
-                <el-dropdown-item v-if="userStore.isAdmin" @click="$router.push('/admin/products')">
+                <el-dropdown-item v-if="userStore.isAdmin" @click="$router.push('/manage/products')">
                   <el-icon><Goods /></el-icon>
                   {{ $t('nav.admin.products') }}
                 </el-dropdown-item>
-                <el-dropdown-item v-if="userStore.isAdmin" @click="$router.push('/admin/orders')">
+                <el-dropdown-item v-if="userStore.isAdmin" @click="$router.push('/manage/orders')">
                   <el-icon><Document /></el-icon>
                   {{ $t('nav.admin.orders') }}
                 </el-dropdown-item>
-                <el-dropdown-item v-if="userStore.isAdmin" @click="$router.push('/admin/users')">
+                <el-dropdown-item v-if="userStore.isAdmin" @click="$router.push('/manage/users')">
                   <el-icon><User /></el-icon>
                   {{ $t('nav.admin.users') }}
                 </el-dropdown-item>

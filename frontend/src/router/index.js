@@ -61,27 +61,27 @@ const routes = [
         component: () => import('../views/user/UserProfile.vue'),
     },
     {
-        path: '/admin/dashboard',
+        path: '/manage/dashboard',
         name: 'AdminDashboard',
         component: () => import('../views/admin/AdminDashboard.vue'),
     },
     {
-        path: '/admin/products',
+        path: '/manage/products',
         name: 'AdminProductList',
         component: () => import('../views/admin/AdminProductList.vue'),
     },
     {
-        path: '/admin/products/:id',
+        path: '/manage/products/:id',
         name: 'AdminProductEdit',
         component: () => import('../views/admin/AdminProductEdit.vue'),
     },
     {
-        path: '/admin/orders',
+        path: '/manage/orders',
         name: 'AdminOrderList',
         component: () => import('../views/admin/AdminOrderList.vue'),
     },
     {
-        path: '/admin/users',
+        path: '/manage/users',
         name: 'AdminUsers',
         component: () => import('../views/admin/AdminUsers.vue'),
     },

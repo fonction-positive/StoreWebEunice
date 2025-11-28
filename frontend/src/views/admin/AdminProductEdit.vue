@@ -137,7 +137,7 @@ const handleSave = async () => {
       await productStore.createProduct(form.value);
       ElMessage.success('创建成功');
     }
-    router.push('/admin/products');
+    router.push('/manage/products');
   } catch (error) {
     ElMessage.error('保存失败');
   }

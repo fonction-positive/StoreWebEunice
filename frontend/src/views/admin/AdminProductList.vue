@@ -10,7 +10,7 @@
           </el-button>
           <h1 class="page-title">商品管理</h1>
         </div>
-        <el-button type="primary" @click="$router.push('/admin/products/new')" size="large">
+        <el-button type="primary" @click="$router.push('/manage/products/new')" size="large">
           <el-icon><Plus /></el-icon>
           添加商品
         </el-button>
@@ -68,7 +68,7 @@
             <el-button 
               size="small" 
               text
-              @click="$router.push(`/admin/products/${scope.row.id}`)"
+              @click="$router.push(`/manage/products/${scope.row.id}`)"
             >
               编辑
             </el-button>
