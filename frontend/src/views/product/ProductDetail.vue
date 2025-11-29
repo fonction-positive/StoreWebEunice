@@ -19,7 +19,7 @@
         <!-- Main Image -->
         <div class="main-image-wrapper">
           <img 
-            v-if="productStore.currentProduct.images.length > 0" 
+            v-if="productStore.currentProduct.images && productStore.currentProduct.images.length > 0" 
             :src="currentImage" 
             :alt="productStore.currentProduct.name" 
             class="main-image" 
@@ -31,7 +31,7 @@
         </div>
         
         <!-- Thumbnail Gallery -->
-        <div v-if="productStore.currentProduct.images.length > 1" class="thumbnail-gallery">
+        <div v-if="productStore.currentProduct.images && productStore.currentProduct.images.length > 1" class="thumbnail-gallery">
           <div 
             v-for="(img, index) in productStore.currentProduct.images" 
             :key="img.id"
@@ -114,11 +114,6 @@
             class="add-to-cart-btn"
           >
             <span>{{ productStore.currentProduct.stock > 0 ? $t('product.addToCart') : $t('product.outOfStock') }}</span>
-            <div class="btn-icon">
-              <el-icon><ArrowRight /></el-icon>
-              <el-icon style="margin-left: -4px;"><ArrowRight /></el-icon>
-              <el-icon style="margin-left: -4px;"><ArrowRight /></el-icon>
-            </div>
           </el-button>
         </div>
       </div>
@@ -144,8 +139,14 @@ const quantity = ref(1);
 const currentImageIndex = ref(0);
 
 const currentImage = computed(() => {
-  if (productStore.currentProduct && productStore.currentProduct.images.length > 0) {
+  if (productStore.currentProduct && 
+      productStore.currentProduct.images && 
+      productStore.currentProduct.images.length > 0) {
     return productStore.currentProduct.images[currentImageIndex.value].image;
+  }
+  // 如果没有 images 数组，尝试使用 main_image
+  if (productStore.currentProduct && productStore.currentProduct.main_image) {
+    return productStore.currentProduct.main_image.image;
   }
   return '';
 });

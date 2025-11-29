@@ -1,82 +1,81 @@
 <template>
   <div class="order-detail-page" v-if="orderStore.currentOrder">
-    <!-- Header -->
-    <header class="header">
-      <div class="header-content">
+    <div class="page-container">
+      <!-- Header -->
+      <div class="page-header">
         <el-button text @click="$router.back()" class="back-button">
           <el-icon><ArrowLeft /></el-icon>
           {{ $t('order.back') }}
         </el-button>
         <h1 class="page-title">{{ $t('order.detail') }}</h1>
       </div>
-    </header>
 
-    <!-- Order Content -->
-    <div class="order-container">
-      <!-- Status Section -->
-      <div class="section status-section">
-        <el-result 
-          :icon="getStatusIcon(orderStore.currentOrder.status)"
-          :title="getStatusText(orderStore.currentOrder.status)"
-        >
-          <template #sub-title>
-            <p>{{ $t('order.orderNumber') }}：{{ orderStore.currentOrder.order_no }}</p>
-            <p>{{ $t('order.orderDate') }}：{{ formatDate(orderStore.currentOrder.created_at) }}</p>
-          </template>
-        </el-result>
+      <!-- Status Card -->
+      <div class="status-card card">
+        <div class="status-icon-wrapper">
+          <el-icon :size="48" :color="getStatusColor(orderStore.currentOrder.status)">
+            <component :is="getStatusIconComponent(orderStore.currentOrder.status)" />
+          </el-icon>
+        </div>
+        <h2 class="status-title">{{ getStatusText(orderStore.currentOrder.status) }}</h2>
+        <div class="order-meta">
+          <p>{{ $t('order.orderNumber') }}：{{ orderStore.currentOrder.order_no }}</p>
+          <p>{{ $t('order.orderDate') }}：{{ formatDate(orderStore.currentOrder.created_at) }}</p>
+        </div>
       </div>
 
-      <!-- Address Section -->
-      <div class="section">
-        <h2 class="section-title">{{ $t('order.shippingInfo') }}</h2>
-        <div class="address-info">
-          <div class="info-row">
-            <span class="label">{{ $t('order.recipient') }}：</span>
-            <span>{{ orderStore.currentOrder.shipping_name }}</span>
+      <!-- Shipping Info Card -->
+      <div class="info-card card">
+        <h2 class="card-title">{{ $t('order.shippingInfo') }}</h2>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-label">{{ $t('order.recipient') }}</span>
+            <span class="info-value">{{ orderStore.currentOrder.shipping_name }}</span>
           </div>
-          <div class="info-row">
-            <span class="label">{{ $t('order.phone') }}：</span>
-            <span>{{ orderStore.currentOrder.shipping_phone }}</span>
+          <div class="info-item">
+            <span class="info-label">{{ $t('order.phone') }}</span>
+            <span class="info-value">{{ orderStore.currentOrder.shipping_phone }}</span>
           </div>
-          <div class="info-row">
-            <span class="label">{{ $t('order.address') }}：</span>
-            <span>
+          <div class="info-item">
+            <span class="info-label">{{ $t('order.address') }}</span>
+            <span class="info-value">
               {{ orderStore.currentOrder.shipping_province }}
               {{ orderStore.currentOrder.shipping_city }}
               {{ orderStore.currentOrder.shipping_district }}
               {{ orderStore.currentOrder.shipping_address }}
             </span>
           </div>
-          <div v-if="orderStore.currentOrder.tracking_no" class="info-row">
-            <span class="label">{{ $t('order.trackingNo') }}：</span>
-            <span>{{ orderStore.currentOrder.tracking_no }}</span>
+          <div v-if="orderStore.currentOrder.tracking_no" class="info-item">
+            <span class="info-label">{{ $t('order.trackingNo') }}</span>
+            <span class="info-value">{{ orderStore.currentOrder.tracking_no }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Items Section -->
-      <div class="section">
-        <h2 class="section-title">{{ $t('order.itemsList') }}</h2>
+      <!-- Items Card -->
+      <div class="items-card card">
+        <h2 class="card-title">{{ $t('order.itemsList') }}</h2>
         <div class="items-list">
           <div v-for="item in orderStore.currentOrder.items" :key="item.id" class="item-row">
             <div class="item-info">
-              <h3>{{ item.product_name }}</h3>
-              <p>¥{{ item.price }} × {{ item.quantity }}</p>
+              <h3 class="item-name">{{ item.product_name }}</h3>
+              <p class="item-detail">¥{{ item.price }} × {{ item.quantity }}</p>
             </div>
             <div class="item-subtotal">¥{{ item.subtotal }}</div>
           </div>
         </div>
       </div>
 
-      <!-- Summary Section -->
-      <div class="section summary-section">
+      <!-- Summary Card -->
+      <div class="summary-card card">
         <div class="summary-row">
-          <span>{{ $t('order.itemsTotal') }}</span>
-          <span>¥{{ orderStore.currentOrder.total_amount }}</span>
+          <span class="summary-label">{{ $t('order.itemsTotal') }}</span>
+          <span class="summary-value">¥{{ orderStore.currentOrder.total_amount }}</span>
         </div>
+        <div class="summary-divider"></div>
         <div class="summary-row total">
-          <span>{{ $t('order.actualAmount') }}</span>
-          <span class="total-price">¥{{ orderStore.currentOrder.total_amount }}</span>
+          <span class="summary-label">{{ $t('order.actualAmount') }}</span>
+          <span class="summary-value">¥{{ orderStore.currentOrder.total_amount }}</span>
         </div>
       </div>
 
@@ -86,6 +85,7 @@
           v-if="orderStore.currentOrder.status === 'pending'"
           type="primary"
           size="large"
+          class="action-btn"
           @click="handlePay"
         >
           {{ $t('order.pay') }}
@@ -93,6 +93,7 @@
         <el-button 
           v-if="orderStore.currentOrder.status === 'pending' || orderStore.currentOrder.status === 'paid'"
           size="large"
+          class="action-btn"
           @click="handleCancel"
         >
           {{ $t('order.cancel') }}
@@ -101,6 +102,7 @@
           v-if="orderStore.currentOrder.status === 'shipped'"
           type="primary"
           size="large"
+          class="action-btn"
           @click="handleConfirm"
         >
           {{ $t('order.confirm') }}
@@ -115,7 +117,7 @@ import { onMounted } from 'vue';
 import { useOrderStore } from '../../stores/cart';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { ArrowLeft } from '@element-plus/icons-vue';
+import { ArrowLeft, Clock, Checked, Van, CircleCheck, CircleClose } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -132,15 +134,26 @@ const formatDate = (dateString) => {
   return date.toLocaleString('zh-CN');
 };
 
-const getStatusIcon = (status) => {
+const getStatusIconComponent = (status) => {
   const iconMap = {
-    pending: 'warning',
-    paid: 'info',
-    shipped: 'info',
-    completed: 'success',
-    cancelled: 'error'
+    pending: Clock,
+    paid: Checked,
+    shipped: Van,
+    completed: CircleCheck,
+    cancelled: CircleClose
   };
-  return iconMap[status] || 'info';
+  return iconMap[status] || Clock;
+};
+
+const getStatusColor = (status) => {
+  const colorMap = {
+    pending: '#faad14',
+    paid: '#1890ff',
+    shipped: '#1890ff',
+    completed: '#52c41a',
+    cancelled: '#ff4d4f'
+  };
+  return colorMap[status] || '#1890ff';
 };
 
 const getStatusText = (status) => {
@@ -194,24 +207,21 @@ const handleConfirm = async () => {
 <style scoped>
 .order-detail-page {
   min-height: 100vh;
-  background-color: var(--color-bg-secondary);
+  background-color: #fafafa;
+  padding-top: 80px;
 }
 
-.header {
-  background-color: var(--color-bg-primary);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.header-content {
+.page-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: var(--spacing-xl);
 }
 
-.title-row {
+.page-header {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
 }
 
 .back-button {
@@ -223,107 +233,159 @@ const handleConfirm = async () => {
 .page-title {
   font-size: 32px;
   font-weight: 700;
-  letter-spacing: -0.02em;
   color: var(--color-text-primary);
+  margin: 0;
 }
 
-.order-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: var(--spacing-2xl) var(--spacing-xl);
+/* Card Base Style */
+.card {
+  background-color: #ffffff;
+  border-radius: 24px;
+  padding: 32px;
+  border: 1px solid #eee;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-.section {
-  background: var(--color-bg-primary);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-  margin-bottom: var(--spacing-lg);
-  box-shadow: var(--shadow-sm);
-}
-
-.status-section {
+/* Status Card */
+.status-card {
   text-align: center;
 }
 
-.section-title {
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: var(--spacing-lg);
+.status-icon-wrapper {
+  margin-bottom: 16px;
 }
 
-.address-info {
+.status-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  color: #000;
+}
+
+.order-meta {
+  color: #666;
+  font-size: 14px;
+}
+
+.order-meta p {
+  margin: 4px 0;
+}
+
+/* Info Card */
+.card-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+  color: #000;
+}
+
+.info-list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: 16px;
 }
 
-.info-row {
+.info-item {
   display: flex;
   font-size: 15px;
   line-height: 1.6;
 }
 
-.label {
-  color: var(--color-text-secondary);
+.info-label {
+  color: #999;
   min-width: 100px;
+  flex-shrink: 0;
 }
 
+.info-value {
+  color: #000;
+  font-weight: 500;
+}
+
+/* Items Card */
 .items-list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: 12px;
 }
 
 .item-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-md);
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--radius-md);
+  padding: 16px;
+  background-color: #fafafa;
+  border-radius: 16px;
 }
 
-.item-info h3 {
+.item-info {
+  flex: 1;
+}
+
+.item-name {
   font-size: 16px;
-  font-weight: 600;
-  margin-bottom: var(--spacing-xs);
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: #000;
 }
 
-.item-info p {
-  color: var(--color-text-secondary);
+.item-detail {
+  color: #999;
   font-size: 14px;
+  margin: 0;
 }
 
 .item-subtotal {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
-  color: var(--color-price);
+  color: #000;
 }
 
+/* Summary Card */
 .summary-row {
   display: flex;
   justify-content: space-between;
-  padding: var(--spacing-md) 0;
+  padding: 12px 0;
   font-size: 15px;
+  color: #666;
+}
+
+.summary-value {
+  font-weight: 600;
+  color: #000;
+}
+
+.summary-divider {
+  height: 1px;
+  background-color: #eee;
+  margin: 16px 0;
 }
 
 .summary-row.total {
-  border-top: 1px solid var(--color-border);
-  margin-top: var(--spacing-md);
-  padding-top: var(--spacing-lg);
-  font-size: 17px;
-  font-weight: 600;
-}
-
-.total-price {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
-  color: var(--color-price);
+  color: #000;
+  padding: 0;
 }
 
+.summary-row.total .summary-value {
+  font-weight: 700;
+}
+
+/* Actions */
 .actions-section {
   display: flex;
   justify-content: center;
-  gap: var(--spacing-md);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.action-btn {
+  min-width: 160px;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 24px;
 }
 </style>

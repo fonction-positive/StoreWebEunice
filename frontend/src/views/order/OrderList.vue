@@ -26,86 +26,86 @@
 
       <!-- Orders List -->
       <div class="orders-content" v-loading="orderStore.loading">
-      <div v-if="orderStore.orders.length > 0" class="orders-list">
-        <div 
-          v-for="order in orderStore.orders" 
-          :key="order.id"
-          class="order-card"
-          @click="$router.push(`/user/orders/${order.id}`)"
-        >
-          <div class="order-header">
-            <div class="order-info">
-              <span class="order-no">{{ $t('order.orderNumber') }}：{{ order.order_no }}</span>
-              <span class="order-time">{{ formatDate(order.created_at) }}</span>
-            </div>
-            <el-tag :type="getStatusType(order.status)" size="large">
-              {{ getStatusText(order.status) }}
-            </el-tag>
-          </div>
-
-          <div class="order-items">
-            <div v-for="item in order.items" :key="item.id" class="order-item">
-              <div class="item-image-wrapper">
-                <img 
-                  v-if="item.product_image" 
-                  :src="item.product_image" 
-                  :alt="item.product_name"
-                  class="item-image"
-                />
-                <div v-else class="item-image-placeholder">
-                  <el-icon :size="32"><Picture /></el-icon>
-                </div>
+        <div v-if="orderStore.orders.length > 0" class="orders-list">
+          <div 
+            v-for="order in orderStore.orders" 
+            :key="order.id"
+            class="order-card"
+            @click="$router.push(`/user/orders/${order.id}`)"
+          >
+            <div class="order-header">
+              <div class="order-info">
+                <span class="order-no">{{ $t('order.orderNumber') }}：{{ order.order_no }}</span>
+                <span class="order-time">{{ formatDate(order.created_at) }}</span>
               </div>
-              <div class="item-info">
-                <div class="item-name">{{ item.product_name }}</div>
-                <div class="item-detail">
-                  <span>¥{{ item.price }} × {{ item.quantity }}</span>
-                </div>
-              </div>
-              <div class="item-subtotal">¥{{ item.subtotal }}</div>
+              <el-tag :type="getStatusType(order.status)" size="large">
+                {{ getStatusText(order.status) }}
+              </el-tag>
             </div>
-          </div>
 
-          <div class="order-footer">
-            <div class="order-total">
-              <span>{{ $t('order.total') }}：</span>
-              <span class="total-amount">¥{{ order.total_amount }}</span>
+            <div class="order-items">
+              <div v-for="item in order.items" :key="item.id" class="order-item">
+                <div class="item-image-wrapper">
+                  <img 
+                    v-if="item.product_image" 
+                    :src="item.product_image" 
+                    :alt="item.product_name"
+                    class="item-image"
+                  />
+                  <div v-else class="item-image-placeholder">
+                    <el-icon :size="32"><Picture /></el-icon>
+                  </div>
+                </div>
+                <div class="item-info">
+                  <div class="item-name">{{ item.product_name }}</div>
+                  <div class="item-detail">
+                    <span>¥{{ item.price }} × {{ item.quantity }}</span>
+                  </div>
+                </div>
+                <div class="item-subtotal">¥{{ item.subtotal }}</div>
+              </div>
             </div>
-            <div class="order-actions" @click.stop>
-              <el-button 
-                v-if="order.status === 'pending'"
-                size="small"
-                @click="handlePay(order.id)"
-              >
-                {{ $t('order.pay') }}
-              </el-button>
-              <el-button 
-                v-if="order.status === 'pending' || order.status === 'paid'"
-                size="small"
-                type="danger"
-                @click="handleCancel(order.id)"
-              >
-                {{ $t('order.cancel') }}
-              </el-button>
-              <el-button 
-                v-if="order.status === 'shipped'"
-                size="small"
-                type="primary"
-                @click="handleConfirm(order.id)"
-              >
-                {{ $t('order.confirm') }}
-              </el-button>
+
+            <div class="order-footer">
+              <div class="order-total">
+                <span>{{ $t('order.total') }}：</span>
+                <span class="total-amount">¥{{ order.total_amount }}</span>
+              </div>
+              <div class="order-actions" @click.stop>
+                <el-button 
+                  v-if="order.status === 'pending'"
+                  class="action-btn"
+                  @click="handlePay(order.id)"
+                >
+                  {{ $t('order.pay') }}
+                </el-button>
+                <el-button 
+                  v-if="order.status === 'pending' || order.status === 'paid'"
+                  class="action-btn"
+                  type="danger"
+                  @click="handleCancel(order.id)"
+                >
+                  {{ $t('order.cancel') }}
+                </el-button>
+                <el-button 
+                  v-if="order.status === 'shipped'"
+                  class="action-btn"
+                  type="primary"
+                  @click="handleConfirm(order.id)"
+                >
+                  {{ $t('order.confirm') }}
+                </el-button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <el-empty v-else :description="$t('order.noOrders')" :image-size="120">
-        <el-button type="primary" @click="$router.push('/')">{{ $t('order.goShopping') }}</el-button>
-      </el-empty>
+        <el-empty v-else :description="$t('order.noOrders')" :image-size="120">
+          <el-button type="primary" @click="$router.push('/')">{{ $t('order.goShopping') }}</el-button>
+        </el-empty>
+      </div>
     </div>
   </div>
-</div>
 </template>
 
 <script setup>
@@ -146,8 +146,8 @@ const getStatusType = (status) => {
   const typeMap = {
     pending: 'warning',
     paid: 'primary',
-    shipped: 'info',
-    completed: 'success',
+    shipped: 'success',
+    completed: 'info',
     cancelled: 'danger'
   };
   return typeMap[status] || 'info';
@@ -206,6 +206,13 @@ const handleConfirm = async (orderId) => {
   min-height: 100vh;
   background-color: #fafafa;
   padding-top: 80px;
+  overflow-y: scroll;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.order-list-page::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .page-container {
@@ -241,7 +248,7 @@ const handleConfirm = async (orderId) => {
 }
 
 .tabs {
-  display: flex;
+  display: inline-flex;
   gap: 12px;
   background-color: #f0f0f0;
   border-radius: 30px;
@@ -259,6 +266,8 @@ const handleConfirm = async (orderId) => {
   border-radius: 26px;
   transition: all 0.3s;
   white-space: nowrap;
+  flex: 1;
+  text-align: center;
 }
 
 .tab-btn:hover {
@@ -272,6 +281,10 @@ const handleConfirm = async (orderId) => {
 }
 
 .orders-content {
+  /* Empty wrapper, no specific styles needed */
+}
+
+.orders-list {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -410,5 +423,12 @@ const handleConfirm = async (orderId) => {
 .order-actions {
   display: flex;
   gap: 8px;
+}
+
+.action-btn {
+  height: 36px;
+  padding: 0 20px;
+  font-size: 14px;
+  font-weight: 500;
 }
 </style>

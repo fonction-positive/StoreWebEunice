@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import api from '../api/axios';
+import { DEV_MODE } from '../config/devMode';
 
 export const useUserStore = defineStore('user', {
     state: () => ({
@@ -8,11 +9,23 @@ export const useUserStore = defineStore('user', {
         refreshToken: localStorage.getItem('refresh_token') || null,
     }),
     getters: {
-        isAuthenticated: (state) => !!state.accessToken,
+        isAuthenticated: (state) => {
+            // 开发模式下始终返回已认证
+            if (DEV_MODE.enabled) return true;
+            return !!state.accessToken;
+        },
         isAdmin: (state) => state.user?.role === 'admin',
     },
     actions: {
         async login(username, password) {
+            // 开发模式：跳过真实登录
+            if (DEV_MODE.enabled) {
+                this.user = DEV_MODE.mockUser;
+                this.accessToken = 'mock-token';
+                this.refreshToken = 'mock-refresh-token';
+                return true;
+            }
+
             try {
                 const response = await api.post('auth/login/', { username, password });
                 const { access, refresh } = response.data;
@@ -37,6 +50,12 @@ export const useUserStore = defineStore('user', {
             }
         },
         async fetchUser() {
+            // 开发模式：返回 mock 用户
+            if (DEV_MODE.enabled) {
+                this.user = DEV_MODE.mockUser;
+                return;
+            }
+
             try {
                 const response = await api.get('auth/me/');
                 this.user = response.data;
@@ -45,6 +64,12 @@ export const useUserStore = defineStore('user', {
             }
         },
         async updateProfile(userData) {
+            // 开发模式：模拟更新
+            if (DEV_MODE.enabled) {
+                this.user = { ...this.user, ...userData };
+                return this.user;
+            }
+
             try {
                 const response = await api.patch('auth/me/', userData, {
                     headers: {
@@ -59,6 +84,11 @@ export const useUserStore = defineStore('user', {
             }
         },
         async changePassword(passwordData) {
+            // 开发模式：模拟成功
+            if (DEV_MODE.enabled) {
+                return true;
+            }
+
             try {
                 await api.put('auth/password_change/', passwordData);
                 return true;
