@@ -1,0 +1,120 @@
+# ========================================
+# Python / Django Backend
+# ========================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Django stuff
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Media files (uncomment if you don't want to track media files)
+# media/
+
+# Static files (uncomment if you don't want to track collected static files)
+# staticfiles/
+
+# Flask/Django secret key
+*.secret
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# PyCharm
+.idea/
+
+# ========================================
+# Frontend (Node.js / Vue / React)
+# ========================================
+# Logs
+logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+build/
+
+# Local env files
+*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ========================================
+# DataGrip / IDE
+# ========================================
+# Default ignored files
+.idea/shelf/
+.idea/workspace.xml
+
+# Datasource local storage ignored files
+.idea/dataSources/
+.idea/dataSources.local.xml
+
+# ========================================
+# Editor directories and files
+# ========================================
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ========================================
+# Other
+# ========================================
+# Redis dump
+dump.rdb
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# OS specific
+Thumbs.db
+
+
+/Documents/
+/datagrip/
