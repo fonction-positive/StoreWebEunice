@@ -11,7 +11,7 @@
       </div>
 
       <!-- Cart Content -->
-      <div class="cart-content" v-loading="cartStore.loading">
+      <div class="cart-wrapper" v-loading="cartStore.loading">
         <div v-if="cartStore.items.length > 0" class="cart-content">
           <!-- Cart Items -->
           <div class="cart-items-section">
@@ -35,7 +35,7 @@
                   <h3 class="item-name">{{ item.product_detail.name }}</h3>
                   <el-icon
                       class="delete-icon"
-                      :size="18"
+                      :size="24"
                       @click="handleRemove(item.id)"
                   >
                     <Delete />
@@ -250,7 +250,7 @@ const handleCheckout = () => {
 
 .cart-content {
   display: grid;
-  grid-template-columns: 1fr 400px;
+  grid-template-columns: 1fr 320px;
   gap: 24px;
 }
 
@@ -338,7 +338,7 @@ const handleCheckout = () => {
   cursor: pointer;
   padding: 4px;
   transition: color 0.2s;
-  font-size: 20px;
+  font-size: 24px;
 }
 
 .delete-icon:hover {
