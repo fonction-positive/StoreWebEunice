@@ -18,8 +18,20 @@ interface Product {
   name: string;
   description?: string;
   price: number;
+  original_price?: number;
+  discount_percentage?: number;
+  has_discount?: boolean;
   stock: number;
+  is_hot_sale?: boolean;
   category?: number;
+  rating?: number;
+  reviews?: number;
+  color?: string;
+  size?: string;
+  material?: string;
+  weight?: string;
+  length?: string;
+  compatibility?: string;
   main_image?: ProductImage;
   images?: ProductImage[];
 }
@@ -175,6 +187,11 @@ const Index = () => {
                       alt={product.name}
                       className="w-full aspect-square object-cover"
                     />
+                    {product.is_hot_sale && (
+                      <div className="absolute top-3 left-3">
+                        <Badge variant="default" className="bg-red-500 text-white rounded-full">Hot Sale</Badge>
+                      </div>
+                    )}
                     <button
                       className="absolute top-3 right-3 h-10 w-10 rounded-full bg-background flex items-center justify-center shadow-md hover:scale-110 transition-transform"
                       onClick={(e) => toggleFavorite(product.id, e)}
@@ -189,11 +206,19 @@ const Index = () => {
                   </div>
                   <div className="pt-3 px-1">
                     <h3 className="font-bold text-base mb-1 tracking-tight">{product.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">
+                    <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
                       {product.description || "暂无描述"}
                     </p>
                     <div className="flex items-center gap-2">
                       <p className="font-bold text-xl">¥{product.price}</p>
+                      {product.original_price && product.original_price > product.price && (
+                        <>
+                          <p className="text-sm text-muted-foreground line-through">¥{product.original_price}</p>
+                          {product.discount_percentage > 0 && (
+                            <Badge variant="destructive" className="text-xs rounded-full">-{product.discount_percentage}%</Badge>
+                          )}
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>

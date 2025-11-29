@@ -22,10 +22,18 @@ class ProductSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
     images = ProductImageSerializer(many=True, read_only=True)
     main_image = serializers.SerializerMethodField()
+    has_discount = serializers.ReadOnlyField()
 
     class Meta:
         model = Product
-        fields = ('id', 'category', 'category_name', 'name', 'description', 'price', 'stock', 'rating', 'reviews', 'color', 'is_active', 'images', 'main_image', 'created_at')
+        fields = (
+            'id', 'category', 'category_name', 'name', 'description', 
+            'price', 'original_price', 'discount_percentage', 'has_discount',
+            'stock', 'is_hot_sale',
+            'rating', 'reviews', 
+            'color', 'size', 'material', 'weight', 'length', 'compatibility',
+            'is_active', 'images', 'main_image', 'created_at'
+        )
 
     def get_main_image(self, obj):
         main_img = obj.images.filter(is_main=True).first()

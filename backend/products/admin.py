@@ -12,7 +12,25 @@ class ProductImageInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'price', 'stock', 'is_active', 'created_at')
-    list_filter = ('category', 'is_active')
+    list_display = ('name', 'category', 'price', 'original_price', 'discount_percentage', 'stock', 'is_hot_sale', 'rating', 'is_active', 'created_at')
+    list_filter = ('category', 'is_active', 'is_hot_sale')
     search_fields = ('name', 'description')
     inlines = [ProductImageInline]
+    fieldsets = (
+        ('基本信息', {
+            'fields': ('category', 'name', 'description', 'is_active')
+        }),
+        ('价格与折扣', {
+            'fields': ('price', 'original_price', 'discount_percentage')
+        }),
+        ('库存与销售', {
+            'fields': ('stock', 'is_hot_sale')
+        }),
+        ('评价', {
+            'fields': ('rating', 'reviews')
+        }),
+        ('商品规格', {
+            'fields': ('color', 'size', 'material', 'weight', 'length', 'compatibility'),
+            'classes': ('collapse',)
+        }),
+    )
