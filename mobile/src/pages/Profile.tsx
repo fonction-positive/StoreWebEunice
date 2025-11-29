@@ -1,16 +1,104 @@
+import { useState, useEffect } from "react";
 import { ChevronRight, User, Package, Heart, Settings, LogOut, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import api from "@/lib/api";
+
+interface UserData {
+  id: number;
+  username: string;
+  email: string;
+  avatar?: string;
+}
+
+interface Stats {
+  orders: number;
+  favorites: number;
+  reviews: number;
+}
 
 const Profile = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<UserData | null>(null);
+  const [stats, setStats] = useState<Stats>({ orders: 0, favorites: 0, reviews: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem('access_token');
+
+      // If not logged in, redirect to login
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      try {
+        // Fetch user info
+        const userResponse = await api.get('users/me/');
+        setUser(userResponse.data);
+
+        // Fetch orders count
+        try {
+          const ordersResponse = await api.get('orders/');
+          setStats(prev => ({ ...prev, orders: ordersResponse.data.length || 0 }));
+        } catch (error) {
+          console.error('Failed to fetch orders:', error);
+        }
+
+        // Fetch favorites count
+        try {
+          const favoritesResponse = await api.get('favorites/');
+          setStats(prev => ({ ...prev, favorites: favoritesResponse.data.length || 0 }));
+        } catch (error) {
+          console.error('Failed to fetch favorites:', error);
+        }
+
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+        // If token is invalid, redirect to login
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        navigate('/login');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    navigate('/login');
+  };
+
   const menuItems = [
-    { icon: Package, label: "My Orders", count: 3, path: "/orders" },
-    { icon: Heart, label: "Favorites", count: 12, path: "/favorites" },
-    { icon: Bell, label: "Notifications", count: 5, path: "/notifications" },
+    { icon: Package, label: "My Orders", count: stats.orders, path: "/orders" },
+    { icon: Heart, label: "Favorites", count: stats.favorites, path: "/favorites" },
+    { icon: Bell, label: "Notifications", count: 0, path: "/notifications" },
     { icon: Settings, label: "Settings", path: "/settings" },
   ];
+
+  if (loading) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-6 h-full flex items-center justify-center">
+        <p className="text-muted-foreground">加载中...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  // Get user initials for avatar fallback
+  const getInitials = (username: string) => {
+    return username.substring(0, 2).toUpperCase();
+  };
 
   return (
     <div className="max-w-md mx-auto px-4 py-6 h-full overflow-y-auto">
@@ -21,19 +109,23 @@ const Profile = () => {
       <Card className="p-6 rounded-2xl mb-6">
         <div className="flex items-center gap-4">
           <Avatar className="h-20 w-20">
-            <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop" />
-            <AvatarFallback>JD</AvatarFallback>
+            {user.avatar && <AvatarImage src={user.avatar} />}
+            <AvatarFallback className="text-xl font-bold">
+              {getInitials(user.username)}
+            </AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <h2 className="text-xl font-bold">John Doe</h2>
-            <p className="text-sm text-muted-foreground">john.doe@email.com</p>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-2 rounded-full text-xs font-semibold"
-            >
-              Edit Profile
-            </Button>
+            <h2 className="text-xl font-bold">{user.username}</h2>
+            <p className="text-sm text-muted-foreground">{user.email}</p>
+            <Link to="/settings">
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-2 rounded-full text-xs font-semibold"
+              >
+                Edit Profile
+              </Button>
+            </Link>
           </div>
         </div>
       </Card>
@@ -41,15 +133,15 @@ const Profile = () => {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-4">
         <Card className="p-4 rounded-2xl text-center">
-          <p className="text-2xl font-bold">12</p>
+          <p className="text-2xl font-bold">{stats.orders}</p>
           <p className="text-xs text-muted-foreground">Orders</p>
         </Card>
         <Card className="p-4 rounded-2xl text-center">
-          <p className="text-2xl font-bold">24</p>
+          <p className="text-2xl font-bold">{stats.favorites}</p>
           <p className="text-xs text-muted-foreground">Favorites</p>
         </Card>
         <Card className="p-4 rounded-2xl text-center">
-          <p className="text-2xl font-bold">5</p>
+          <p className="text-2xl font-bold">{stats.reviews}</p>
           <p className="text-xs text-muted-foreground">Reviews</p>
         </Card>
       </div>
@@ -71,7 +163,7 @@ const Profile = () => {
                   <span className="font-semibold">{item.label}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  {item.count && (
+                  {item.count !== undefined && item.count > 0 && (
                     <span className="h-6 w-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold">
                       {item.count}
                     </span>
@@ -96,15 +188,21 @@ const Profile = () => {
       <Card className="p-4 rounded-2xl mb-6">
         <h3 className="font-bold mb-3">Support</h3>
         <div className="space-y-2">
-          <button className="w-full text-left py-2 px-3 rounded-xl hover:bg-muted/50 transition-colors">
-            <span className="text-sm font-medium">Help Center</span>
-          </button>
-          <button className="w-full text-left py-2 px-3 rounded-xl hover:bg-muted/50 transition-colors">
-            <span className="text-sm font-medium">Privacy Policy</span>
-          </button>
-          <button className="w-full text-left py-2 px-3 rounded-xl hover:bg-muted/50 transition-colors">
-            <span className="text-sm font-medium">Terms of Service</span>
-          </button>
+          <Link to="/help-center">
+            <button className="w-full text-left py-2 px-3 rounded-xl hover:bg-muted/50 transition-colors">
+              <span className="text-sm font-medium">Help Center</span>
+            </button>
+          </Link>
+          <Link to="/privacy-policy">
+            <button className="w-full text-left py-2 px-3 rounded-xl hover:bg-muted/50 transition-colors">
+              <span className="text-sm font-medium">Privacy Policy</span>
+            </button>
+          </Link>
+          <Link to="/about">
+            <button className="w-full text-left py-2 px-3 rounded-xl hover:bg-muted/50 transition-colors">
+              <span className="text-sm font-medium">About</span>
+            </button>
+          </Link>
         </div>
       </Card>
 
@@ -112,6 +210,7 @@ const Profile = () => {
       <Button
         variant="outline"
         className="w-full h-12 rounded-full font-semibold"
+        onClick={handleLogout}
       >
         <LogOut className="h-4 w-4 mr-2" />
         Log Out
