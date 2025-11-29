@@ -7,11 +7,30 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import api from "@/lib/api";
 
+interface ProductImage {
+  id: number;
+  image: string;
+  is_main: boolean;
+}
+
+interface Product {
+  id: number;
+  name: string;
+  description?: string;
+  price: number;
+  stock: number;
+  category?: number;
+  main_image?: ProductImage;
+  images?: ProductImage[];
+}
+
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [isScrolled, setIsScrolled] = useState(false);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [user, setUser] = useState<{ username: string } | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
   const categories = ["All", "Women", "Man", "Kid"];
 
   useEffect(() => {
@@ -39,6 +58,22 @@ const Index = () => {
     fetchUser();
   }, []);
 
+  // Fetch products from backend API
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const response = await api.get('products/');
+        setProducts(response.data);
+      } catch (error) {
+        console.error('Failed to fetch products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
   const toggleFavorite = (productId: number, e: React.MouseEvent) => {
     e.preventDefault();
     setFavorites(prev =>
@@ -47,43 +82,6 @@ const Index = () => {
         : [...prev, productId]
     );
   };
-
-  const products = [
-    {
-      id: 1,
-      name: "BLACK CROP TOP",
-      color: "Grey",
-      price: 45,
-      originalPrice: 65,
-      discount: 30,
-      image: "https://images.unsplash.com/photo-1594633313593-bab3825d0caf?w=400&h=400&fit=crop",
-    },
-    {
-      id: 2,
-      name: "LUXE SWEATER",
-      color: "Grey",
-      price: 85,
-      originalPrice: 120,
-      discount: 25,
-      image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400&h=400&fit=crop",
-    },
-    {
-      id: 3,
-      name: "CLASSIC JACKET",
-      color: "Brown",
-      price: 120,
-      image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=400&fit=crop",
-    },
-    {
-      id: 4,
-      name: "RED DRESS",
-      color: "Red",
-      price: 95,
-      originalPrice: 150,
-      discount: 35,
-      image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&h=400&fit=crop",
-    },
-  ];
 
   return (
     <div className="max-w-md mx-auto h-full overflow-y-auto">
@@ -159,44 +157,49 @@ const Index = () => {
 
         {/* Product Grid */}
         <div className="grid grid-cols-2 gap-4 pb-4">
-          {products.map((product) => (
-            <Link key={product.id} to={`/product/${product.id}`}>
-              <div className="hover:scale-[1.02] transition-transform">
-                <div className="relative rounded-[2rem] overflow-hidden bg-muted/30 shadow-sm">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full aspect-square object-cover"
-                  />
-                  <button
-                    className="absolute top-3 right-3 h-10 w-10 rounded-full bg-background flex items-center justify-center shadow-md hover:scale-110 transition-transform"
-                    onClick={(e) => toggleFavorite(product.id, e)}
-                  >
-                    <Heart
-                      className={`h-5 w-5 transition-colors ${favorites.includes(product.id)
-                          ? "fill-[rgb(255,107,107)] text-[rgb(255,107,107)]"
-                          : "text-foreground"
-                        }`}
+          {loading ? (
+            <div className="col-span-2 text-center py-8 text-muted-foreground">
+              加载中...
+            </div>
+          ) : products.length === 0 ? (
+            <div className="col-span-2 text-center py-8 text-muted-foreground">
+              暂无商品
+            </div>
+          ) : (
+            products.map((product) => (
+              <Link key={product.id} to={`/product/${product.id}`}>
+                <div className="hover:scale-[1.02] transition-transform">
+                  <div className="relative rounded-[2rem] overflow-hidden bg-muted/30 shadow-sm">
+                    <img
+                      src={product.main_image?.image || "https://images.unsplash.com/photo-1594633313593-bab3825d0caf?w=400&h=400&fit=crop"}
+                      alt={product.name}
+                      className="w-full aspect-square object-cover"
                     />
-                  </button>
-                </div>
-                <div className="pt-3 px-1">
-                  <h3 className="font-bold text-base mb-1 tracking-tight">{product.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Color - {product.color}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <p className="font-bold text-xl">${product.price}</p>
-                    {product.originalPrice && (
-                      <p className="text-sm text-muted-foreground line-through">
-                        ${product.originalPrice}
-                      </p>
-                    )}
+                    <button
+                      className="absolute top-3 right-3 h-10 w-10 rounded-full bg-background flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+                      onClick={(e) => toggleFavorite(product.id, e)}
+                    >
+                      <Heart
+                        className={`h-5 w-5 transition-colors ${favorites.includes(product.id)
+                            ? "fill-[rgb(255,107,107)] text-[rgb(255,107,107)]"
+                            : "text-foreground"
+                          }`}
+                      />
+                    </button>
+                  </div>
+                  <div className="pt-3 px-1">
+                    <h3 className="font-bold text-base mb-1 tracking-tight">{product.name}</h3>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {product.description || "暂无描述"}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-bold text-xl">¥{product.price}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ))
+          )}
         </div>
       </div>
     </div>
