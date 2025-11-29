@@ -1,6 +1,5 @@
 <template>
   <div class="product-detail-page" v-if="productStore.currentProduct">
-    <!-- Header -->
     <!-- Navigation Bar -->
     <NavBar />
 
@@ -16,7 +15,7 @@
     <!-- Product Detail Content -->
     <div class="detail-container">
       <!-- Image Gallery -->
-      <div class="image-section">
+      <div class="image-section card">
         <!-- Main Image -->
         <div class="main-image-wrapper">
           <img 
@@ -46,28 +45,57 @@
       
       <!-- Product Info -->
       <div class="info-section">
-        <h1 class="product-title">{{ productStore.currentProduct.name }}</h1>
-        <p class="product-price">¥{{ productStore.currentProduct.price }}</p>
-        
-        <div class="divider"></div>
-        
-        <div class="description-section">
-          <h3 class="section-label">{{ $t('product.description') }}</h3>
+        <!-- Title and Price Card -->
+        <div class="info-card card">
+          <div class="tag-row">
+            <span class="tag hot-sale">Hot Sale</span>
+            <div class="rating">
+              <el-icon color="#000000" :size="14"><StarFilled /></el-icon>
+              <span class="rating-score">4.8</span>
+              <span class="rating-count">(128)</span>
+            </div>
+          </div>
+
+          <h1 class="product-title">{{ productStore.currentProduct.name }}</h1>
+          
+          <div class="price-row">
+            <span class="current-price">¥{{ productStore.currentProduct.price }}</span>
+            <span class="original-price">¥{{ (parseFloat(productStore.currentProduct.price) * 1.5).toFixed(0) }}</span>
+          </div>
+
+          <div class="stock-info">
+            <span class="label">{{ $t('product.stock') }}:</span>
+            <span class="value badge">
+              {{ productStore.currentProduct.stock > 0 ? `${productStore.currentProduct.stock} ${$t('product.inStock')}` : $t('product.outOfStock') }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Description Card -->
+        <div class="description-card card">
+          <h3 class="section-title">{{ $t('product.description') }}</h3>
           <p class="product-description">
             {{ productStore.currentProduct.description || $t('product.noDescription') }}
           </p>
         </div>
-        
-        <div class="divider"></div>
-        
-        <div class="stock-info">
-          <span class="section-label">{{ $t('product.stock') }}：</span>
-          <span :class="['stock-value', { 'out-of-stock': productStore.currentProduct.stock === 0 }]">
-            {{ productStore.currentProduct.stock > 0 ? `${productStore.currentProduct.stock} ${$t('product.inStock')}` : $t('product.outOfStock') }}
-          </span>
+
+        <!-- Specifications Card -->
+        <div class="specs-card card">
+          <h3 class="section-title">{{ $t('product.specifications') }}</h3>
+          <div class="specs-list">
+            <div class="spec-item">
+              <span class="spec-label">{{ $t('product.category') }}</span>
+              <span class="spec-value">{{ productStore.currentProduct.category_name }}</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">{{ $t('product.stock') }}</span>
+              <span class="spec-value">{{ productStore.currentProduct.stock }}</span>
+            </div>
+          </div>
         </div>
-        
-        <div class="actions-section">
+
+        <!-- Actions Section -->
+        <div class="actions-section card">
           <div class="quantity-selector">
             <span class="section-label">{{ $t('product.quantity') }}</span>
             <el-input-number 
@@ -85,7 +113,12 @@
             :disabled="productStore.currentProduct.stock === 0"
             class="add-to-cart-btn"
           >
-            {{ productStore.currentProduct.stock > 0 ? $t('product.addToCart') : $t('product.outOfStock') }}
+            <span>{{ productStore.currentProduct.stock > 0 ? $t('product.addToCart') : $t('product.outOfStock') }}</span>
+            <div class="btn-icon">
+              <el-icon><ArrowRight /></el-icon>
+              <el-icon style="margin-left: -4px;"><ArrowRight /></el-icon>
+              <el-icon style="margin-left: -4px;"><ArrowRight /></el-icon>
+            </div>
           </el-button>
         </div>
       </div>
@@ -100,7 +133,7 @@ import { useProductStore } from '../../stores/product';
 import { useCartStore } from '../../stores/cart';
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { Picture } from '@element-plus/icons-vue';
+import { Picture, StarFilled, ArrowRight } from '@element-plus/icons-vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -134,12 +167,9 @@ const addToCart = async () => {
 <style scoped>
 .product-detail-page {
   min-height: 100vh;
-  background-color: var(--color-bg-secondary);
+  background-color: #fafafa;
   padding-top: calc(6rem + var(--spacing-xl));
 }
-
-/* Header */
-
 
 /* Breadcrumb */
 .breadcrumb-container {
@@ -155,15 +185,23 @@ const addToCart = async () => {
   padding: 0 var(--spacing-xl) var(--spacing-2xl);
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-2xl);
+  gap: 24px;
+}
+
+/* Card Base Style */
+.card {
+  background-color: #ffffff;
+  border-radius: 24px;
+  border: 1px solid #eee;
+  overflow: hidden;
+  transition: all 0.2s;
 }
 
 /* Image Section */
 .image-section {
-  background: var(--color-bg-primary);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 100px;
+  height: fit-content;
 }
 
 .main-image-wrapper {
@@ -172,8 +210,8 @@ const addToCart = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background-color: #fafafa;
+  padding: 20px;
 }
 
 .main-image {
@@ -184,17 +222,16 @@ const addToCart = async () => {
 
 .thumbnail-gallery {
   display: flex;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md);
-  background: var(--color-bg-primary);
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  gap: 12px;
+  padding: 16px;
+  background: #ffffff;
   overflow-x: auto;
 }
 
 .thumbnail {
   width: 80px;
   height: 80px;
-  border-radius: var(--radius-sm);
+  border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
   border: 2px solid transparent;
@@ -232,28 +269,140 @@ const addToCart = async () => {
 .info-section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: 20px;
+}
+
+.info-card {
+  padding: 24px;
+}
+
+.tag-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.tag.hot-sale {
+  background-color: #f5f5f5;
+  color: #000000;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 16px;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rating-score {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.rating-count {
+  color: #999;
+  font-size: 14px;
 }
 
 .product-title {
-  font-size: 40px;
+  font-size: 32px;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--color-text-primary);
   line-height: 1.2;
+  margin: 0 0 16px 0;
 }
 
-.product-price {
+.price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.current-price {
   font-size: 32px;
   font-weight: 700;
   color: var(--color-price);
   letter-spacing: -0.01em;
 }
 
-.divider {
-  height: 1px;
-  background-color: var(--color-border);
-  margin: var(--spacing-md) 0;
+.original-price {
+  font-size: 20px;
+  color: #999;
+  text-decoration: line-through;
+}
+
+.stock-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.stock-info .badge {
+  background-color: #f5f5f5;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #000;
+  font-weight: 500;
+}
+
+.description-card,
+.specs-card {
+  padding: 24px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+}
+
+.product-description {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.specs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.spec-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.spec-label {
+  color: #999;
+}
+
+.spec-value {
+  font-weight: 600;
+}
+
+/* Actions Section */
+.actions-section {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.quantity-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .section-label {
@@ -262,70 +411,44 @@ const addToCart = async () => {
   color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  display: block;
-  margin-bottom: var(--spacing-sm);
-}
-
-.description-section {
-  padding: var(--spacing-md) 0;
-}
-
-.product-description {
-  font-size: 17px;
-  line-height: 1.6;
-  color: var(--color-text-primary);
-}
-
-.stock-info {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
-
-.stock-value {
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--color-success);
-}
-
-.stock-value.out-of-stock {
-  color: var(--color-danger);
-}
-
-/* Actions Section */
-.actions-section {
-  margin-top: var(--spacing-lg);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
-}
-
-.quantity-selector {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
 }
 
 .add-to-cart-btn {
   width: 100%;
   height: 56px;
   font-size: 17px;
-  font-weight: 600;
-  border-radius: var(--radius-md);
+  font-weight: 700;
+  border-radius: 30px;
+  background-color: #000;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-icon {
+  display: flex;
+  align-items: center;
 }
 
 /* Responsive */
 @media (max-width: 1024px) {
   .detail-container {
     grid-template-columns: 1fr;
-    gap: var(--spacing-xl);
+    gap: 20px;
+  }
+
+  .image-section {
+    position: relative;
+    top: 0;
   }
   
   .product-title {
-    font-size: 32px;
+    font-size: 28px;
   }
   
-  .product-price {
+  .current-price {
     font-size: 28px;
   }
 }
@@ -338,10 +461,10 @@ const addToCart = async () => {
   }
   
   .product-title {
-    font-size: 28px;
+    font-size: 24px;
   }
   
-  .carousel-image-wrapper,
+  .main-image-wrapper,
   .image-placeholder {
     height: 300px;
   }

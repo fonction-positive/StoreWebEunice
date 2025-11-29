@@ -20,7 +20,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100%;
-  background-color: #ffffff;
+  background-color: #fafafa;
   /* Extend background to cover safe area insets (rounded corners) */
   padding-bottom: env(safe-area-inset-bottom);
 }

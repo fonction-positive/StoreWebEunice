@@ -157,6 +157,10 @@ const navigateTo = (name) => {
     router.push('/');
   } else if (name === 'favorites') {
     router.push('/favorites');
+  } else if (name === 'cart') {
+    router.push('/cart');
+  } else if (name === 'profile') {
+    router.push('/profile');
   }
   // 其他页面路由可以后续添加
 };
@@ -170,7 +174,7 @@ onMounted(() => {
 <style scoped>
 .home-page {
   min-height: 100vh;
-  background-color: #ffffff;
+  background-color: #fafafa; /* Updated to HSL(0, 0%, 98%) */
   padding-bottom: 80px;
 }
 
@@ -180,9 +184,9 @@ onMounted(() => {
   top: 0;
   left: 0;
   right: 0;
-  background-color: #ffffff;
-  z-index: 1000;
   padding: 8px 20px 12px; /* 减小顶部内边距 */
+  background-color: transparent; /* Removed background color */
+  z-index: 1000;
 }
 
 .header-top {

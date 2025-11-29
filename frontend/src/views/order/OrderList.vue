@@ -46,14 +46,16 @@
 
           <div class="order-items">
             <div v-for="item in order.items" :key="item.id" class="order-item">
-              <img 
-                v-if="item.product_image" 
-                :src="item.product_image" 
-                :alt="item.product_name"
-                class="item-image"
-              />
-              <div v-else class="item-image-placeholder">
-                <el-icon :size="32"><Picture /></el-icon>
+              <div class="item-image-wrapper">
+                <img 
+                  v-if="item.product_image" 
+                  :src="item.product_image" 
+                  :alt="item.product_name"
+                  class="item-image"
+                />
+                <div v-else class="item-image-placeholder">
+                  <el-icon :size="32"><Picture /></el-icon>
+                </div>
               </div>
               <div class="item-info">
                 <div class="item-name">{{ item.product_name }}</div>
@@ -202,11 +204,11 @@ const handleConfirm = async (orderId) => {
 <style scoped>
 .order-list-page {
   min-height: 100vh;
-  background-color: var(--color-bg-secondary);
+  background-color: #fafafa;
 }
 
 .header {
-  background-color: var(--color-bg-primary);
+  background-color: #ffffff;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -217,12 +219,6 @@ const handleConfirm = async (orderId) => {
   display: flex;
   align-items: center;
   gap: var(--spacing-lg);
-}
-
-.title-row {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
 }
 
 .back-button {
@@ -240,7 +236,7 @@ const handleConfirm = async (orderId) => {
 }
 
 .tabs-container {
-  background: var(--color-bg-primary);
+  background: #ffffff;
   border-bottom: 1px solid var(--color-border);
   position: sticky;
   top: 0;
@@ -283,36 +279,38 @@ const handleConfirm = async (orderId) => {
 .orders-list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: 20px;
 }
 
 .order-card {
-  background: var(--color-bg-primary);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
-  border: 1px solid var(--color-border);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .order-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
-  border-color: var(--color-primary-light, rgba(0, 122, 255, 0.3));
+  border-color: var(--color-primary);
 }
 
 .order-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f5f5f5;
+  margin-bottom: 16px;
 }
 
 .order-info {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: 4px;
 }
 
 .order-no {
@@ -326,44 +324,46 @@ const handleConfirm = async (orderId) => {
 }
 
 .order-items {
-  padding: var(--spacing-md) 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .order-item {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--radius-md);
+  gap: 16px;
+  padding: 12px;
+  background-color: #fafafa;
+  border-radius: 16px;
   transition: all 0.2s;
 }
 
 .order-item:hover {
-  background-color: var(--color-bg-tertiary, #f5f5f5);
+  background-color: #f5f5f5;
 }
 
-.item-image {
-  width: 60px;
-  height: 60px;
-  border-radius: var(--radius-sm);
-  object-fit: cover;
+.item-image-wrapper {
   flex-shrink: 0;
 }
 
+.item-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
 .item-image-placeholder {
-  width: 60px;
-  height: 60px;
-  border-radius: var(--radius-sm);
-  background-color: var(--color-bg-secondary);
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  background-color: #f5f5f5;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--color-text-secondary);
-  flex-shrink: 0;
 }
 
 .item-info {
@@ -373,8 +373,8 @@ const handleConfirm = async (orderId) => {
 
 .item-name {
   font-size: 15px;
-  font-weight: 500;
-  margin-bottom: var(--spacing-xs);
+  font-weight: 600;
+  margin-bottom: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -386,8 +386,8 @@ const handleConfirm = async (orderId) => {
 }
 
 .item-subtotal {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   color: var(--color-price);
   flex-shrink: 0;
 }
@@ -396,8 +396,8 @@ const handleConfirm = async (orderId) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: var(--spacing-md);
-  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
+  border-top: 1px solid #f5f5f5;
 }
 
 .order-total {
@@ -406,13 +406,14 @@ const handleConfirm = async (orderId) => {
 }
 
 .total-amount {
-  font-size: 20px;
+  font-size: 22px;
   color: var(--color-price);
-  margin-left: var(--spacing-sm);
+  margin-left: 8px;
+  font-weight: 700;
 }
 
 .order-actions {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: 8px;
 }
 </style>
