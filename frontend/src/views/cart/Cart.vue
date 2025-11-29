@@ -338,6 +338,7 @@ const handleCheckout = () => {
   cursor: pointer;
   padding: 4px;
   transition: color 0.2s;
+  font-size: 20px;
 }
 
 .delete-icon:hover {
@@ -355,6 +356,7 @@ const handleCheckout = () => {
   justify-content: space-between;
   align-items: center;
   margin-top: 8px;
+  gap: 48px;
 }
 
 .item-price {
