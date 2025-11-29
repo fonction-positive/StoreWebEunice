@@ -12,9 +12,9 @@
 
       <!-- Cart Content -->
       <div class="cart-wrapper" v-loading="cartStore.loading">
-        <div v-if="cartStore.items.length > 0" class="cart-content">
-          <!-- Cart Items -->
-          <div class="cart-items-section">
+        <div v-if="cartStore.items.length > 0" class="cart-layout">
+          <!-- Left Side: Cart Items -->
+          <div class="cart-items-column">
             <div v-for="item in cartStore.items" :key="item.id" class="cart-item card">
               <el-checkbox v-model="item.selected" @change="updateSelection" class="item-checkbox" />
 
@@ -70,8 +70,8 @@
             </div>
           </div>
 
-          <!-- Order Summary -->
-          <div class="order-summary-section">
+          <!-- Right Side: Order Summary -->
+          <div class="cart-summary-column">
             <div class="summary-card card">
               <h2 class="summary-title">{{ $t('cart.orderSummary') }}</h2>
 
@@ -96,16 +96,16 @@
                 <span class="summary-label">{{ $t('cart.total') }}</span>
                 <span class="summary-value">¥{{ selectedTotal }}</span>
               </div>
-            </div>
 
-            <button
-                class="checkout-btn"
-                @click="handleCheckout"
-                :disabled="selectedCount === 0"
-                :class="{ 'is-disabled': selectedCount === 0 }"
-            >
-              {{ $t('cart.checkout') }}
-            </button>
+              <button
+                  class="checkout-btn"
+                  @click="handleCheckout"
+                  :disabled="selectedCount === 0"
+                  :class="{ 'is-disabled': selectedCount === 0 }"
+              >
+                {{ $t('cart.checkout') }}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -192,6 +192,7 @@ const handleRemove = (itemId) => {
     confirmButtonText: t('cart.remove'),
     cancelButtonText: t('cart.cancel'),
     type: 'warning',
+    center: true,
   }).then(async () => {
     try {
       await cartStore.removeItem(itemId);
@@ -219,13 +220,15 @@ const handleCheckout = () => {
   min-height: 100vh;
   background-color: #fafafa;
   padding-top: 80px;
+  padding-bottom: 40px;
 }
 
 .page-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--spacing-xl);
+  padding: 0 var(--spacing-xl);
   width: 100%;
+  box-sizing: border-box;
 }
 
 .page-header {
@@ -248,10 +251,26 @@ const handleCheckout = () => {
   margin: 0;
 }
 
-.cart-content {
-  display: grid;
-  grid-template-columns: 1fr 320px;
+/* Layout */
+.cart-layout {
+  display: flex;
   gap: 24px;
+  align-items: flex-start;
+}
+
+.cart-items-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0; /* Prevent flex item from overflowing */
+}
+
+.cart-summary-column {
+  width: 320px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 100px;
 }
 
 /* Card Base Style */
@@ -262,13 +281,7 @@ const handleCheckout = () => {
   transition: all 0.2s;
 }
 
-/* Cart Items Section */
-.cart-items-section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
+/* Cart Item */
 .cart-item {
   padding: 24px;
   display: flex;
@@ -316,12 +329,14 @@ const handleCheckout = () => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  min-width: 0; /* Enable text truncation if needed */
 }
 
 .item-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 12px;
 }
 
 .item-name {
@@ -329,20 +344,21 @@ const handleCheckout = () => {
   font-weight: 700;
   color: #000000;
   margin: 0;
-  text-transform: uppercase;
-  line-height: 1.2;
+  line-height: 1.4;
 }
 
 .delete-icon {
-  color: #000000;
+  color: #999;
   cursor: pointer;
   padding: 4px;
-  transition: color 0.2s;
+  transition: all 0.2s;
   font-size: 24px;
+  flex-shrink: 0;
 }
 
 .delete-icon:hover {
   color: var(--color-danger);
+  transform: scale(1.1);
 }
 
 .item-specs {
@@ -355,8 +371,8 @@ const handleCheckout = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 8px;
-  gap: 48px;
+  margin-top: 12px;
+  gap: 16px;
 }
 
 .item-price {
@@ -404,16 +420,7 @@ const handleCheckout = () => {
   text-align: center;
 }
 
-/* Order Summary Section */
-.order-summary-section {
-  position: sticky;
-  top: 100px;
-  height: fit-content;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
+/* Summary Card */
 .summary-card {
   padding: 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
@@ -446,14 +453,10 @@ const handleCheckout = () => {
 }
 
 .summary-row.total {
-  margin-bottom: 0;
+  margin-bottom: 24px;
   font-size: 20px;
   font-weight: 700;
   color: #000000;
-}
-
-.summary-row.total .summary-value {
-  font-weight: 700;
 }
 
 .checkout-btn {
@@ -488,11 +491,12 @@ const handleCheckout = () => {
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .cart-content {
-    grid-template-columns: 1fr;
+  .cart-layout {
+    flex-direction: column;
   }
 
-  .order-summary-section {
+  .cart-summary-column {
+    width: 100%;
     position: static;
   }
 }
@@ -501,16 +505,15 @@ const handleCheckout = () => {
   .cart-item {
     flex-direction: column;
     align-items: flex-start;
+    padding-left: 48px;
+    position: relative;
   }
 
   .item-checkbox {
     position: absolute;
-    top: 16px;
+    top: 24px;
     left: 16px;
-  }
-
-  .cart-item {
-    padding-left: 48px;
+    margin-top: 0;
   }
 
   .item-image-wrapper {
