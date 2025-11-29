@@ -225,6 +225,7 @@ const handleCheckout = () => {
   max-width: 1200px;
   margin: 0 auto;
   padding: var(--spacing-xl);
+  width: 100%;
 }
 
 .page-header {
@@ -269,9 +270,9 @@ const handleCheckout = () => {
 }
 
 .cart-item {
-  padding: 16px;
+  padding: 24px;
   display: flex;
-  gap: 16px;
+  gap: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
@@ -287,8 +288,8 @@ const handleCheckout = () => {
 }
 
 .item-image-wrapper {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   border-radius: 16px;
   overflow: hidden;
   background-color: #f5f5f5;
