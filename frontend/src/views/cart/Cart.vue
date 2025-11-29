@@ -12,113 +12,113 @@
 
       <!-- Cart Content -->
       <div class="cart-content" v-loading="cartStore.loading">
-      <div v-if="cartStore.items.length > 0" class="cart-content">
-        <!-- Cart Items -->
-        <div class="cart-items-section">
-          <div v-for="item in cartStore.items" :key="item.id" class="cart-item card">
-            <el-checkbox v-model="item.selected" @change="updateSelection" class="item-checkbox" />
-            
-            <div class="item-image-wrapper">
-              <img 
-                v-if="item.product_detail.main_image" 
-                :src="`${item.product_detail.main_image.image}`" 
-                :alt="item.product_detail.name" 
-                class="item-image" 
-              />
-              <div v-else class="image-placeholder">
-                <el-icon :size="32"><Picture /></el-icon>
-              </div>
-            </div>
+        <div v-if="cartStore.items.length > 0" class="cart-content">
+          <!-- Cart Items -->
+          <div class="cart-items-section">
+            <div v-for="item in cartStore.items" :key="item.id" class="cart-item card">
+              <el-checkbox v-model="item.selected" @change="updateSelection" class="item-checkbox" />
 
-            <div class="item-details">
-              <div class="item-header">
-                <h3 class="item-name">{{ item.product_detail.name }}</h3>
-                <el-icon 
-                  class="delete-icon" 
-                  :size="18"
-                  @click="handleRemove(item.id)"
-                >
-                  <Delete />
-                </el-icon>
+              <div class="item-image-wrapper">
+                <img
+                    v-if="item.product_detail.main_image"
+                    :src="`${item.product_detail.main_image.image}`"
+                    :alt="item.product_detail.name"
+                    class="item-image"
+                />
+                <div v-else class="image-placeholder">
+                  <el-icon :size="32"><Picture /></el-icon>
+                </div>
               </div>
-              
-              <p class="item-specs" v-if="item.product_detail.category_name">
-                {{ $t('product.category') }}: {{ item.product_detail.category_name }}
-              </p>
-              
-              <div class="item-footer">
-                <div class="item-price">¥{{ item.product_detail.price }}</div>
-                <div class="quantity-control">
-                  <button 
-                    class="qty-btn" 
-                    @click="decreaseQuantity(item)"
-                    :disabled="item.quantity <= 1"
+
+              <div class="item-details">
+                <div class="item-header">
+                  <h3 class="item-name">{{ item.product_detail.name }}</h3>
+                  <el-icon
+                      class="delete-icon"
+                      :size="18"
+                      @click="handleRemove(item.id)"
                   >
-                    <el-icon :size="12"><Minus /></el-icon>
-                  </button>
-                  <span class="qty-value">{{ item.quantity }}</span>
-                  <button 
-                    class="qty-btn" 
-                    @click="increaseQuantity(item)"
-                    :disabled="item.quantity >= item.product_detail.stock"
-                  >
-                    <el-icon :size="12"><Plus /></el-icon>
-                  </button>
+                    <Delete />
+                  </el-icon>
+                </div>
+
+                <p class="item-specs" v-if="item.product_detail.category_name">
+                  {{ $t('product.category') }}: {{ item.product_detail.category_name }}
+                </p>
+
+                <div class="item-footer">
+                  <div class="item-price">¥{{ item.product_detail.price }}</div>
+                  <div class="quantity-control">
+                    <button
+                        class="qty-btn"
+                        @click="decreaseQuantity(item)"
+                        :disabled="item.quantity <= 1"
+                    >
+                      <el-icon :size="12"><Minus /></el-icon>
+                    </button>
+                    <span class="qty-value">{{ item.quantity }}</span>
+                    <button
+                        class="qty-btn"
+                        @click="increaseQuantity(item)"
+                        :disabled="item.quantity >= item.product_detail.stock"
+                    >
+                      <el-icon :size="12"><Plus /></el-icon>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Order Summary -->
-        <div class="order-summary-section">
-          <div class="summary-card card">
-            <h2 class="summary-title">{{ $t('cart.orderSummary') }}</h2>
-            
-            <div class="summary-row">
-              <span class="summary-label">{{ $t('cart.itemCount') }}</span>
-              <span class="summary-value">{{ selectedCount }} {{ $t('cart.itemUnit') }}</span>
+          <!-- Order Summary -->
+          <div class="order-summary-section">
+            <div class="summary-card card">
+              <h2 class="summary-title">{{ $t('cart.orderSummary') }}</h2>
+
+              <div class="summary-row">
+                <span class="summary-label">{{ $t('cart.itemCount') }}</span>
+                <span class="summary-value">{{ selectedCount }} {{ $t('cart.itemUnit') }}</span>
+              </div>
+
+              <div class="summary-row">
+                <span class="summary-label">{{ $t('cart.subtotal') }}</span>
+                <span class="summary-value">¥{{ selectedTotal }}</span>
+              </div>
+
+              <div class="summary-row">
+                <span class="summary-label">{{ $t('cart.shipping') }}</span>
+                <span class="summary-value">¥0.00</span>
+              </div>
+
+              <div class="summary-divider"></div>
+
+              <div class="summary-row total">
+                <span class="summary-label">{{ $t('cart.total') }}</span>
+                <span class="summary-value">¥{{ selectedTotal }}</span>
+              </div>
             </div>
-            
-            <div class="summary-row">
-              <span class="summary-label">{{ $t('cart.subtotal') }}</span>
-              <span class="summary-value">¥{{ selectedTotal }}</span>
-            </div>
-            
-            <div class="summary-row">
-              <span class="summary-label">{{ $t('cart.shipping') }}</span>
-              <span class="summary-value">¥0.00</span>
-            </div>
-            
-            <div class="summary-divider"></div>
-            
-            <div class="summary-row total">
-              <span class="summary-label">{{ $t('cart.total') }}</span>
-              <span class="summary-value">¥{{ selectedTotal }}</span>
-            </div>
+
+            <button
+                class="checkout-btn"
+                @click="handleCheckout"
+                :disabled="selectedCount === 0"
+                :class="{ 'is-disabled': selectedCount === 0 }"
+            >
+              {{ $t('cart.checkout') }}
+            </button>
           </div>
-
-          <button 
-            class="checkout-btn"
-            @click="handleCheckout"
-            :disabled="selectedCount === 0"
-            :class="{ 'is-disabled': selectedCount === 0 }"
-          >
-            {{ $t('cart.checkout') }}
-          </button>
         </div>
-      </div>
 
-      <el-empty 
-        v-else 
-        :description="$t('cart.empty')"
-        :image-size="120"
-      >
-        <el-button type="primary" @click="$router.push('/')">{{ $t('cart.goShopping') }}</el-button>
-      </el-empty>
+        <el-empty
+            v-else
+            :description="$t('cart.empty')"
+            :image-size="120"
+        >
+          <el-button type="primary" @click="$router.push('/')">{{ $t('cart.goShopping') }}</el-button>
+        </el-empty>
+      </div>
     </div>
   </div>
-</div>
 </template>
 
 <script setup>
@@ -156,9 +156,9 @@ const selectedCount = computed(() => {
 
 const selectedTotal = computed(() => {
   return cartStore.items
-    .filter(item => item.selected)
-    .reduce((sum, item) => sum + item.quantity * parseFloat(item.product_detail.price), 0)
-    .toFixed(2);
+      .filter(item => item.selected)
+      .reduce((sum, item) => sum + item.quantity * parseFloat(item.product_detail.price), 0)
+      .toFixed(2);
 });
 
 const updateSelection = () => {
@@ -491,7 +491,7 @@ const handleCheckout = () => {
   .cart-content {
     grid-template-columns: 1fr;
   }
-  
+
   .order-summary-section {
     position: static;
   }
@@ -512,7 +512,7 @@ const handleCheckout = () => {
   .cart-item {
     padding-left: 48px;
   }
-  
+
   .item-image-wrapper {
     width: 80px;
     height: 80px;
