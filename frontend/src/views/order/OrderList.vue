@@ -1,31 +1,31 @@
 <template>
   <div class="order-list-page">
-    <!-- Header -->
-    <header class="header">
-      <div class="header-content">
+    <div class="page-container">
+      <!-- Header -->
+      <div class="page-header">
         <el-button text @click="$router.back()" class="back-button">
           <el-icon><ArrowLeft /></el-icon>
+          {{ $t('common.back') }}
         </el-button>
         <h1 class="page-title">{{ $t('order.myOrders') }}</h1>
       </div>
-    </header>
 
-    <!-- Filter Tabs -->
-    <div class="tabs-container">
-      <div class="tabs">
-        <button 
-          v-for="tab in tabs" 
-          :key="tab.value"
-          :class="['tab-btn', { active: currentTab === tab.value }]"
-          @click="handleTabChange(tab.value)"
-        >
-          {{ tab.label }}
-        </button>
+      <!-- Filter Tabs -->
+      <div class="tabs-container">
+        <div class="tabs">
+          <button 
+            v-for="tab in tabs" 
+            :key="tab.value"
+            :class="['tab-btn', { active: currentTab === tab.value }]"
+            @click="handleTabChange(tab.value)"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
       </div>
-    </div>
 
-    <!-- Orders List -->
-    <div class="orders-container" v-loading="orderStore.loading">
+      <!-- Orders List -->
+      <div class="orders-content" v-loading="orderStore.loading">
       <div v-if="orderStore.orders.length > 0" class="orders-list">
         <div 
           v-for="order in orderStore.orders" 
@@ -105,6 +105,7 @@
       </el-empty>
     </div>
   </div>
+</div>
 </template>
 
 <script setup>
@@ -204,37 +205,33 @@ const handleConfirm = async (orderId) => {
 .order-list-page {
   min-height: 100vh;
   background-color: #fafafa;
+  padding-top: 80px;
 }
 
-.header {
-  background-color: #fafafa;
-  border-bottom: none;
-  padding: 20px 0;
-}
-
-.header-content {
+.page-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 var(--spacing-xl);
+  padding: var(--spacing-xl);
+}
+
+.page-header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
 }
 
 .back-button {
-  font-size: 24px;
-  font-weight: 400;
-  color: #000;
-  padding: 0;
-  min-width: auto;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-primary);
 }
 
 .page-title {
-  font-size: 24px;
+  font-size: 32px;
   font-weight: 700;
-  color: #000000;
+  color: var(--color-text-primary);
   margin: 0;
-  flex: 1;
 }
 
 .tabs-container {
@@ -244,9 +241,6 @@ const handleConfirm = async (orderId) => {
 }
 
 .tabs {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 var(--spacing-xl);
   display: flex;
   gap: 12px;
   background-color: #f0f0f0;
@@ -277,13 +271,7 @@ const handleConfirm = async (orderId) => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.orders-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--spacing-2xl) var(--spacing-xl);
-}
-
-.orders-list {
+.orders-content {
   display: flex;
   flex-direction: column;
   gap: 20px;

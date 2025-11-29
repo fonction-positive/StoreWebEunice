@@ -1,18 +1,17 @@
 <template>
   <div class="cart-page">
     <!-- Header -->
-    <header class="header">
-      <div class="header-content">
+    <div class="page-container">
+      <div class="page-header">
         <el-button text @click="$router.push('/')" class="back-button">
           <el-icon><ArrowLeft /></el-icon>
           {{ $t('cart.back') }}
         </el-button>
         <h1 class="page-title">{{ $t('cart.title') }}</h1>
       </div>
-    </header>
 
-    <!-- Cart Content -->
-    <div class="cart-container" v-loading="cartStore.loading">
+      <!-- Cart Content -->
+      <div class="cart-content" v-loading="cartStore.loading">
       <div v-if="cartStore.items.length > 0" class="cart-content">
         <!-- Cart Items -->
         <div class="cart-items-section">
@@ -119,6 +118,7 @@
       </el-empty>
     </div>
   </div>
+</div>
 </template>
 
 <script setup>
@@ -218,23 +218,20 @@ const handleCheckout = () => {
 .cart-page {
   min-height: 100vh;
   background-color: #fafafa;
+  padding-top: 80px;
 }
 
-.header {
-  background-color: #ffffff;
-  border-bottom: 1px solid var(--color-border);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.header-content {
+.page-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: var(--spacing-xl);
+}
+
+.page-header {
   display: flex;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
 }
 
 .back-button {
@@ -246,15 +243,8 @@ const handleCheckout = () => {
 .page-title {
   font-size: 32px;
   font-weight: 700;
-  letter-spacing: -0.02em;
   color: var(--color-text-primary);
   margin: 0;
-}
-
-.cart-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--spacing-2xl) var(--spacing-xl);
 }
 
 .cart-content {

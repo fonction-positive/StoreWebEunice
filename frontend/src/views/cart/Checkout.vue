@@ -247,7 +247,7 @@ const handleSubmit = async () => {
 }
 
 .header-content {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: var(--spacing-md) var(--spacing-xl);
   display: flex;
@@ -269,7 +269,7 @@ const handleSubmit = async () => {
 }
 
 .checkout-container {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: var(--spacing-2xl) var(--spacing-xl);
 }
