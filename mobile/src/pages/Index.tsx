@@ -60,7 +60,7 @@ const Index = () => {
       const token = localStorage.getItem('access_token');
       if (token) {
         try {
-          const response = await api.get('users/me/');
+          const response = await api.get('auth/me/');
           setUser(response.data);
         } catch (error) {
           console.error('Failed to fetch user:', error);
@@ -86,13 +86,51 @@ const Index = () => {
     fetchProducts();
   }, []);
 
-  const toggleFavorite = (productId: number, e: React.MouseEvent) => {
+  // Fetch user's favorites
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      const token = localStorage.getItem('access_token');
+      if (!token) return;
+
+      try {
+        const response = await api.get('favorites/');
+        const favoriteIds = response.data.map((fav: any) => fav.product.id);
+        setFavorites(favoriteIds);
+      } catch (error) {
+        console.error('Failed to fetch favorites:', error);
+      }
+    };
+    fetchFavorites();
+  }, []);
+
+  const toggleFavorite = async (productId: number, e: React.MouseEvent) => {
     e.preventDefault();
-    setFavorites(prev =>
-      prev.includes(productId)
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
-    );
+    
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      // 未登录时仅更新本地状态
+      setFavorites(prev =>
+        prev.includes(productId)
+          ? prev.filter(id => id !== productId)
+          : [...prev, productId]
+      );
+      return;
+    }
+
+    try {
+      const response = await api.post('favorites/toggle/', {
+        product_id: productId
+      });
+      
+      // 更新本地状态
+      if (response.data.is_favorited) {
+        setFavorites(prev => [...prev, productId]);
+      } else {
+        setFavorites(prev => prev.filter(id => id !== productId));
+      }
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+    }
   };
 
   return (
