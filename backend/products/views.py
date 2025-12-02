@@ -29,6 +29,12 @@ class ProductViewSet(viewsets.ModelViewSet):
         if self.request.user.is_staff and self.request.path.startswith('/api/v1/admin/'):
              return Product.objects.all()
         return Product.objects.filter(is_active=True)
+    
+    def get_serializer_context(self):
+        """确保serializer能访问request对象"""
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
 
 class AdminProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()

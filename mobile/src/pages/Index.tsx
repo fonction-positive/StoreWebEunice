@@ -34,12 +34,12 @@ interface Product {
   compatibility?: string;
   main_image?: ProductImage;
   images?: ProductImage[];
+  is_favorited?: boolean;  // 后端返回的收藏状态
 }
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [isScrolled, setIsScrolled] = useState(false);
-  const [favorites, setFavorites] = useState<string[]>([]);
   const [user, setUser] = useState<{ username: string } | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
@@ -84,50 +84,15 @@ const Index = () => {
       }
     };
     fetchProducts();
-  }, []);
 
-  // Fetch user's favorites
-  useEffect(() => {
-    const fetchFavorites = async () => {
-      const token = localStorage.getItem('access_token');
-      if (!token) return;
-
-      try {
-        const response = await api.get('favorites/');
-        const favoriteIds = response.data.map((fav: any) => fav.product.id);
-        setFavorites(favoriteIds);
-      } catch (error) {
-        console.error('Failed to fetch favorites:', error);
-      }
-    };
-    
-    // 初始加载
-    fetchFavorites();
-
-    // 当页面重新获得焦点时重新加载（从详情页返回时）
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        fetchFavorites();
-      }
+    // 监听收藏状态变化事件，重新获取商品列表
+    const handleFavoritesChanged = () => {
+      fetchProducts();
     };
 
-    // 监听收藏状态变化事件
-    const handleFavoritesChanged = (e: any) => {
-      const { productId, isFavorited } = e.detail;
-      if (isFavorited) {
-        setFavorites(prev => [...prev, productId]);
-      } else {
-        setFavorites(prev => prev.filter(id => id !== productId));
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('focus', fetchFavorites);
     window.addEventListener('favoritesChanged', handleFavoritesChanged as EventListener);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('focus', fetchFavorites);
       window.removeEventListener('favoritesChanged', handleFavoritesChanged as EventListener);
     };
   }, []);
@@ -137,12 +102,7 @@ const Index = () => {
     
     const token = localStorage.getItem('access_token');
     if (!token) {
-      // 未登录时仅更新本地状态
-      setFavorites(prev =>
-        prev.includes(productId)
-          ? prev.filter(id => id !== productId)
-          : [...prev, productId]
-      );
+      // 未登录时不做任何操作，或者提示用户登录
       return;
     }
 
@@ -151,12 +111,14 @@ const Index = () => {
         product_id: productId
       });
       
-      // 更新本地状态
-      if (response.data.is_favorited) {
-        setFavorites(prev => [...prev, productId]);
-      } else {
-        setFavorites(prev => prev.filter(id => id !== productId));
-      }
+      // 更新本地产品列表中的收藏状态
+      setProducts(prevProducts =>
+        prevProducts.map(product =>
+          product.id === productId
+            ? { ...product, is_favorited: response.data.is_favorited }
+            : product
+        )
+      );
       
       // 触发自定义事件通知其他页面更新收藏状态
       window.dispatchEvent(new CustomEvent('favoritesChanged', { 
@@ -269,7 +231,7 @@ const Index = () => {
                       onClick={(e) => toggleFavorite(product.id, e)}
                     >
                       <Heart
-                        className={`h-5 w-5 transition-colors ${favorites.includes(product.id)
+                        className={`h-5 w-5 transition-colors ${product.is_favorited
                             ? "fill-[rgb(255,107,107)] text-[rgb(255,107,107)]"
                             : "text-foreground"
                           }`}
