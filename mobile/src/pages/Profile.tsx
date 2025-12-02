@@ -82,7 +82,6 @@ const Profile = () => {
 
   const menuItems = [
     { icon: Package, label: "My Orders", count: stats.orders, path: "/orders" },
-    { icon: Heart, label: "Favorites", count: stats.favorites, path: "/favorites" },
     { icon: Bell, label: "Notifications", count: 0, path: "/notifications" },
     { icon: Settings, label: "Settings", path: "/settings" },
   ];

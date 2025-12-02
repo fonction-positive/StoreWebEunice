@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Package, Truck, CheckCircle, Clock, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "@/lib/api";
 
 interface OrderItem {
@@ -33,6 +33,7 @@ interface Order {
 }
 
 const Orders = () => {
+  const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState("all");
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
@@ -86,11 +87,14 @@ const Orders = () => {
       <div className="max-w-2xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <Link to="/profile">
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-          </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full"
+            onClick={() => navigate(-1)}
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
           <h1 className="text-2xl font-bold">我的订单</h1>
         </div>
 
