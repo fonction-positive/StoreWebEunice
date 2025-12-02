@@ -83,8 +83,8 @@ const ProductDetail = () => {
         return;
       }
       
-      await api.post('cart/items/', {
-        product: product.id,
+      await api.post('cart/add_item/', {
+        product_id: product.id,
         quantity: quantity
       });
       
@@ -92,11 +92,12 @@ const ProductDetail = () => {
         title: "已添加到购物车",
         description: `${quantity}x ${product.name}`,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to add to cart:', error);
+      const errorMsg = error.response?.data?.error || "无法添加到购物车，请稍后重试";
       toast({
         title: "添加失败",
-        description: "无法添加到购物车，请稍后重试",
+        description: errorMsg,
         variant: "destructive",
       });
     }
