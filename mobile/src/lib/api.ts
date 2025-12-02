@@ -1,8 +1,10 @@
 import axios from 'axios';
 
 // 使用绝对路径，避免受base路径影响
+const baseURL = import.meta.env.PROD ? 'https://fluffyletter.jzy.asia/api/v1/' : '/api/v1/';
+
 const api = axios.create({
-    baseURL: import.meta.env.PROD ? 'https://fluffyletter.jzy.asia/api/v1/' : '/api/v1/',
+    baseURL: baseURL,
     timeout: 5000,
 });
 
@@ -31,7 +33,11 @@ api.interceptors.response.use(
             originalRequest._retry = true;
             try {
                 const refreshToken = localStorage.getItem('refresh_token');
-                const response = await axios.post('/api/v1/auth/refresh/', {
+                // 使用绝对URL进行refresh请求
+                const refreshURL = import.meta.env.PROD 
+                    ? 'https://fluffyletter.jzy.asia/api/v1/auth/refresh/'
+                    : '/api/v1/auth/refresh/';
+                const response = await axios.post(refreshURL, {
                     refresh: refreshToken
                 });
                 const { access } = response.data;
