@@ -1,7 +1,8 @@
 import axios from 'axios';
 
+// 使用绝对路径，避免受base路径影响
 const api = axios.create({
-    baseURL: '/api/v1/',
+    baseURL: import.meta.env.PROD ? 'https://fluffyletter.jzy.asia/api/v1/' : '/api/v1/',
     timeout: 5000,
 });
 

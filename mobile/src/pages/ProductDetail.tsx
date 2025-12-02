@@ -46,6 +46,7 @@ const ProductDetail = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Fetch product details from backend API
   useEffect(() => {
@@ -94,6 +95,9 @@ const ProductDetail = () => {
         title: "已添加到购物车",
         description: `${quantity}x ${product.name}`,
       });
+      
+      // Close the drawer after successful addition
+      setDrawerOpen(false);
     } catch (error: any) {
       console.error('Failed to add to cart:', error);
       const errorMsg = error.response?.data?.error || "无法添加到购物车，请稍后重试";
@@ -327,7 +331,7 @@ const ProductDetail = () => {
 
       {/* Bottom Drawer - Fixed */}
       <div className="fixed bottom-0 left-0 right-0 z-20">
-        <Drawer>
+        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
           <DrawerTrigger asChild>
             <div className="bg-background border-t border-border">
               <div className="max-w-md mx-auto px-4 py-4">
