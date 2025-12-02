@@ -12,13 +12,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import api from "@/lib/api";
 
 const passwordSchema = z.object({
   currentPassword: z.string().min(1, "请输入当前密码"),
   newPassword: z.string()
-    .min(8, "密码至少8个字符")
-    .max(32, "密码最多32个字符")
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, "密码必须包含大小写字母和数字"),
+    .min(6, "密码至少6个字符")
+    .max(32, "密码最多32个字符"),
   confirmPassword: z.string().min(1, "请确认新密码"),
 }).refine((data) => data.newPassword === data.confirmPassword, {
   message: "两次输入的密码不一致",
@@ -41,13 +41,28 @@ const PasswordSecurity = () => {
     },
   });
 
-  const onSubmit = (data: PasswordFormData) => {
-    console.log("Password change:", { ...data, currentPassword: "***", newPassword: "***", confirmPassword: "***" });
-    toast({
-      title: "密码修改成功",
-      description: "您的密码已成功更新",
-    });
-    form.reset();
+  const onSubmit = async (data: PasswordFormData) => {
+    try {
+      await api.put('auth/password_change/', {
+        old_password: data.currentPassword,
+        new_password: data.newPassword,
+      });
+      toast({
+        title: "密码修改成功",
+        description: "您的密码已成功更新",
+      });
+      form.reset();
+    } catch (error: any) {
+      console.error('Password change failed:', error);
+      const errorMsg = error.response?.data?.old_password?.[0] || 
+                       error.response?.data?.detail || 
+                       "密码修改失败";
+      toast({
+        title: "修改失败",
+        description: errorMsg,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -98,7 +113,7 @@ const PasswordSecurity = () => {
                   <FormItem>
                     <FormLabel>新密码</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="至少8个字符，包含大小写字母和数字" {...field} />
+                      <Input type="password" placeholder="至少6个字符" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

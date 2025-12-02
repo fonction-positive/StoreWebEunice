@@ -38,7 +38,7 @@ const Profile = () => {
 
       try {
         // Fetch user info
-        const userResponse = await api.get('users/me/');
+        const userResponse = await api.get('auth/me/');
         setUser(userResponse.data);
         setIsLoggedIn(true);
 
@@ -50,10 +50,13 @@ const Profile = () => {
           console.error('Failed to fetch orders:', error);
         }
 
-        // Fetch favorites count
+        // Fetch favorites count from localStorage
         try {
-          const favoritesResponse = await api.get('favorites/');
-          setStats(prev => ({ ...prev, favorites: favoritesResponse.data.length || 0 }));
+          const stored = localStorage.getItem('favorites');
+          if (stored) {
+            const favoriteIds = JSON.parse(stored);
+            setStats(prev => ({ ...prev, favorites: favoriteIds.length || 0 }));
+          }
         } catch (error) {
           console.error('Failed to fetch favorites:', error);
         }

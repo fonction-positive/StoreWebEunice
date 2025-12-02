@@ -1,45 +1,78 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronRight, Plus, MapPin, Phone, User, Home, Briefcase } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
 import { useNavigate } from "react-router-dom";
+import api from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 interface Address {
-  id: string;
-  name: string;
+  id: number;
+  recipient_name: string;
   phone: string;
+  province: string;
+  city: string;
+  district: string;
   address: string;
-  isDefault: boolean;
-  type: "home" | "work";
+  is_default: boolean;
 }
 
 const AddressManagement = () => {
   const navigate = useNavigate();
-  
-  const [addresses] = useState<Address[]>([
-    {
-      id: "1",
-      name: "张三",
-      phone: "138****8888",
-      address: "北京市朝阳区望京街道某某小区 10号楼 202室",
-      isDefault: true,
-      type: "home",
-    },
-    {
-      id: "2",
-      name: "张三",
-      phone: "138****8888",
-      address: "上海市浦东新区陆家嘴金融中心 写字楼A座 15层",
-      isDefault: false,
-      type: "work",
-    },
-  ]);
+  const { toast } = useToast();
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const getTypeIcon = (type: "home" | "work") => {
-    return type === "home" ? Home : Briefcase;
+  useEffect(() => {
+    fetchAddresses();
+  }, []);
+
+  const fetchAddresses = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get('addresses/');
+      setAddresses(response.data);
+    } catch (error) {
+      console.error('Failed to fetch addresses:', error);
+      toast({
+        title: "加载失败",
+        description: "无法加载地址列表",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleSetDefault = async (addressId: number) => {
+    try {
+      await api.put(`addresses/${addressId}/`, { is_default: true });
+      await fetchAddresses();
+      toast({
+        title: "设置成功",
+        description: "已设为默认地址",
+      });
+    } catch (error) {
+      console.error('Failed to set default address:', error);
+      toast({
+        title: "设置失败",
+        description: "无法设置默认地址",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="max-w-md mx-auto px-4 py-6 flex items-center justify-center">
+          <p className="text-muted-foreground">加载中...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -63,6 +96,7 @@ const AddressManagement = () => {
         <Button
           className="w-full h-14 rounded-2xl mb-6 font-semibold"
           size="lg"
+          onClick={() => toast({ title: "功能开发中", description: "该功能即将上线" })}
         >
           <Plus className="h-5 w-5 mr-2" />
           添加新地址
@@ -71,7 +105,6 @@ const AddressManagement = () => {
         {/* Address List */}
         <div className="space-y-3">
           {addresses.map((address) => {
-            const TypeIcon = getTypeIcon(address.type);
             
             return (
               <Card key={address.id} className="p-5 rounded-2xl">
@@ -80,12 +113,12 @@ const AddressManagement = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                        <TypeIcon className="h-5 w-5" />
+                        <MapPin className="h-5 w-5" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold">{address.name}</span>
-                          {address.isDefault && (
+                          <span className="font-bold">{address.recipient_name}</span>
+                          {address.is_default && (
                             <Badge className="rounded-full px-2 py-0.5 text-xs">
                               默认
                             </Badge>
@@ -102,7 +135,9 @@ const AddressManagement = () => {
                   {/* Address */}
                   <div className="flex gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
-                    <p className="text-sm">{address.address}</p>
+                    <p className="text-sm">
+                      {address.province} {address.city} {address.district} {address.address}
+                    </p>
                   </div>
 
                   {/* Actions */}
@@ -111,14 +146,16 @@ const AddressManagement = () => {
                       variant="outline"
                       size="sm"
                       className="flex-1 rounded-full font-semibold"
+                      onClick={() => toast({ title: "功能开发中", description: "该功能即将上线" })}
                     >
                       编辑
                     </Button>
-                    {!address.isDefault && (
+                    {!address.is_default && (
                       <Button
                         variant="outline"
                         size="sm"
                         className="flex-1 rounded-full font-semibold"
+                        onClick={() => handleSetDefault(address.id)}
                       >
                         设为默认
                       </Button>
