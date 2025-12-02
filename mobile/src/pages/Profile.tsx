@@ -50,13 +50,10 @@ const Profile = () => {
           console.error('Failed to fetch orders:', error);
         }
 
-        // Fetch favorites count from localStorage
+        // Fetch favorites count from backend
         try {
-          const stored = localStorage.getItem('favorites');
-          if (stored) {
-            const favoriteIds = JSON.parse(stored);
-            setStats(prev => ({ ...prev, favorites: favoriteIds.length || 0 }));
-          }
+          const favoritesResponse = await api.get('favorites/');
+          setStats(prev => ({ ...prev, favorites: favoritesResponse.data.length || 0 }));
         } catch (error) {
           console.error('Failed to fetch favorites:', error);
         }

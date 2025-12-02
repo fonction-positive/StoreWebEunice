@@ -36,6 +36,7 @@ interface Product {
   compatibility?: string;
   main_image?: ProductImage;
   images?: ProductImage[];
+  is_favorited?: boolean;
 }
 
 const ProductDetail = () => {
@@ -55,6 +56,7 @@ const ProductDetail = () => {
       try {
         const response = await api.get(`products/${id}/`);
         setProduct(response.data);
+        setIsFavorite(response.data.is_favorited || false);
       } catch (error) {
         console.error('Failed to fetch product:', error);
         toast({
@@ -103,6 +105,39 @@ const ProductDetail = () => {
     }
   };
 
+  const toggleFavorite = async () => {
+    if (!product) return;
+
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      toast({
+        title: "请先登录",
+        description: "收藏功能需要先登录",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await api.post('favorites/toggle/', {
+        product_id: product.id
+      });
+      
+      setIsFavorite(response.data.is_favorited);
+      toast({
+        title: response.data.is_favorited ? "已添加到收藏夹" : "已取消收藏",
+        description: response.data.message,
+      });
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+      toast({
+        title: "操作失败",
+        description: "无法更新收藏状态",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -140,7 +175,7 @@ const ProductDetail = () => {
             </button>
           </Link>
           <button
-            onClick={() => setIsFavorite(!isFavorite)}
+            onClick={toggleFavorite}
             className="h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-background transition-all"
           >
             <Heart className={`h-5 w-5 ${isFavorite ? "fill-[rgb(255,107,107)] text-[rgb(255,107,107)]" : ""}`} />

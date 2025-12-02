@@ -1,4 +1,7 @@
 from django.db import models
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class Category(models.Model):
     name = models.CharField(max_length=50)
@@ -57,3 +60,16 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.product.name}"
+
+class Favorite(models.Model):
+    """用户收藏的商品"""
+    user = models.ForeignKey(User, related_name='favorites', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='favorited_by', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product')  # 确保同一用户不会重复收藏同一商品
+        ordering = ['-created_at']  # 按创建时间倒序排列
+
+    def __str__(self):
+        return f"{self.user.username} - {self.product.name}"
